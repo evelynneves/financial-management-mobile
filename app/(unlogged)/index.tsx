@@ -1,26 +1,254 @@
-import { Text, View, Button } from "react-native";
 import { useRouter } from "expo-router";
 import { useAuth } from "../context/auth-context";
+import {
+    View,
+    Text,
+    ScrollView,
+    StyleSheet,
+    TouchableOpacity,
+    Image,
+    ImageSourcePropType,
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function Index() {
-  const { login } = useAuth();
-  const router = useRouter();
+    const { login } = useAuth();
+    const router = useRouter();
 
-  const handleLogin = () => {
-    login(); // Atualiza o contexto
-    router.replace("/home"); // Redireciona para a área logada
-  };
+    const handleLogin = () => {
+        login();
+        router.replace("/home");
+    };
 
-  return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Text>Você está deslogado.</Text>
-      <Button title="Fazer login" onPress={handleLogin} />
-    </View>
-  );
+    return (
+        <LinearGradient colors={["#004D61", "#ffffff"]} style={{ flex: 1 }}>
+            <ScrollView>
+                <View style={styles.content}>
+                    <Text style={styles.title}>
+                        Experimente mais liberdade no controle da sua vida financeira. Crie
+                        sua conta com a gente!
+                    </Text>
+                    <View style={styles.illustrationContainer}>
+                        <Image
+                            style={styles.illustration}
+                            source={require("@/assets/images/illustration_banner.svg")}
+                        />
+                    </View>
+                    <View style={styles.buttonContainer}>
+                        <TouchableOpacity style={styles.primaryButton} onPress={handleLogin}>
+                            <Text style={styles.primaryButtonText}>Abrir conta</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={styles.secondaryButton} onPress={handleLogin}>
+                            <Text style={styles.secondaryButtonText}>Já tenho conta</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    <View style={styles.features}>
+                        <Text style={styles.subtitle}>
+                            Vantagens do nosso banco:
+                        </Text>
+                        <Feature
+                            icon={require("@/assets/images/gift_icon.svg")}
+                            title="Conta e cartão gratuitos"
+                            description="Isso mesmo, nossa conta é digital, sem custo fixo e mais que isso: sem tarifa de manutenção."
+                        />
+                        <Feature
+                            icon={require("@/assets/images/withdraw_icon.svg")}
+                            title="Saques sem custo"
+                            description="Você pode sacar gratuitamente 4x por mês de qualquer Banco 24h."
+                        />
+                        <Feature
+                            icon={require("@/assets/images/points_icon.svg")}
+                            title="Programa de pontos"
+                            description="Você pode acumular pontos com suas compras no crédito sem pagar mensalidade!"
+                        />
+                        <Feature
+                            icon={require("@/assets/images/devices_icon.svg")}
+                            title="Seguro Dispositivos"
+                            description="Seus dispositivos móveis (computador e laptop) protegidos por uma mensalidade simbólica."
+                        />
+                    </View>
+                </View>
+                <View style={styles.footer}>
+                    <View style={styles.footerContainer}>
+                        <Text style={styles.footerTitle}>Serviços</Text>
+                        <Text style={styles.footerText}>Conta corrente</Text>
+                        <Text style={styles.footerText}>Conta PJ</Text>
+                        <Text style={styles.footerText}>Cartão de crédito</Text>
+                    </View>
+
+                    <View style={styles.footerContainer}>
+                        <Text style={styles.footerTitle}>Contato</Text>
+                        <Text style={styles.footerText}>0800 040 206 08</Text>
+                        <Text style={styles.footerText}>meajuda@bytebank.com.br</Text>
+                        <Text style={styles.footerText}>ouvidoria@bytebank.com.br</Text>
+                    </View>
+
+                    <View style={styles.footerContainer}>
+                        <Text style={styles.footerTitle}>Desenvolvido por Alura</Text>
+                        <Image
+                            source={require("@/assets/images/logo_footer.svg")}
+                            style={styles.logo}
+                        />
+                        <View style={styles.socialMediaContainer}>
+                            <Image style={styles.socialMediaIcon} source={require("@/assets/images/instagram_icon.svg")}></Image>
+                            <Image style={styles.socialMediaIcon} source={require("@/assets/images/whatsapp_icon.svg")}></Image>
+                            <Image style={styles.socialMediaIcon} source={require("@/assets/images/youtube_icon.svg")}></Image>
+                        </View>
+                    </View>
+
+                </View>
+            </ScrollView>
+        </LinearGradient>
+    );
 }
+
+type FeatureProps = {
+    icon: ImageSourcePropType;
+    title: string;
+    description: string;
+};
+
+function Feature({ icon, title, description }: FeatureProps) {
+    return (
+        <View style={styles.featureCard}>
+            <Image source={icon} style={styles.featureIcon} />
+            <Text style={styles.featureTitle}>{title}</Text>
+            <Text style={styles.featureDescription}>{description}</Text>
+        </View>
+    );
+}
+
+const styles = StyleSheet.create({
+    container: {
+        alignItems: "center",
+    },
+    content: {
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 30,
+        gap: 20,
+    },
+    title: {
+        color: "#000",
+        fontSize: 25,
+        fontWeight: "bold",
+        textAlign: "center",
+    },
+    illustrationContainer: {
+        width: "100%",
+        height: 200,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    illustration: {
+        height: 200,
+        resizeMode: "contain",
+    },
+    buttonContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: 20,
+    },
+    primaryButton: {
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        width: 144,
+        height: 48,
+        backgroundColor: "#000",
+        borderRadius: 8,
+    },
+    primaryButtonText: {
+        color: "#fff",
+        fontWeight: "bold",
+        fontSize: 16,
+    },
+    secondaryButton: {
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        width: 144,
+        height: 48,
+        backgroundColor: "transparent",
+        borderColor: "#000",
+        borderWidth: 1,
+        borderRadius: 8,
+    },
+    secondaryButtonText: {
+        color: "#000",
+        fontWeight: "bold",
+        fontSize: 16,
+    },
+    subtitle: {
+        color: "#000",
+        fontSize: 20,
+        fontWeight: "bold",
+        textAlign: "center",
+    },
+    features: {
+        width: "100%",
+        paddingTop: 20,
+        gap: 30,
+    },
+    featureCard: {
+        alignItems: "center",
+        marginBottom: 24,
+        gap: 10
+    },
+    featureIcon: {
+        width: 73,
+        height: 56,
+        marginBottom: 8,
+    },
+    featureTitle: {
+        color: "#47A138",
+        fontWeight: "bold",
+        fontSize: 20,
+        textAlign: "center",
+    },
+    featureDescription: {
+        color: "#767676",
+        fontSize: 16,
+        textAlign: "center",
+    },
+    footer: {
+        width: "100%",
+        backgroundColor: "#000",
+        alignItems: "center",
+        padding: 30,
+        gap: 50,
+    },
+    footerContainer: {
+        gap: 8,
+        alignItems: "center",
+
+    },
+    footerTitle: {
+        color: "#fff",
+        fontWeight: "bold",
+        fontSize: 16,
+    },
+    footerText: {
+        color: "#fff",
+        fontSize: 16,
+    },
+    logo: {
+        height: 32,
+        marginTop: 10,
+        resizeMode: "contain",
+        alignSelf: "center",
+    },
+    socialMediaContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginTop: 10,
+        gap: 25,
+    },
+    socialMediaIcon: {
+        width: 30,
+        height: 30,
+    },
+});
