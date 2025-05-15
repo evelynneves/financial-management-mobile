@@ -1,5 +1,5 @@
 import { Drawer } from "expo-router/drawer";
-import { Image, } from "react-native";
+import { Image } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 export default function Layout() {
