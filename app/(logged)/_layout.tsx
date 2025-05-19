@@ -1,6 +1,6 @@
 import { Drawer } from "expo-router/drawer";
-import { Image } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import UserMenu from "../components/UserMenu";
 
 export default function Layout() {
     return (
@@ -13,11 +13,7 @@ export default function Layout() {
                     headerTintColor: "#FF5031",
                     headerTitle: "",
                     headerRight: () => (
-                        <Image
-                            source={require("@/assets/images/avatar.svg")}
-                            style={{ width: 40, height: 40, marginRight: 25 }}
-                            resizeMode="contain"
-                        />
+                        <UserMenu />
                     ),
                     drawerStyle: {
                         backgroundColor: "#E4EDE3",

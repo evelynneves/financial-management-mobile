@@ -56,7 +56,7 @@ export default function AuthModal({
         setError("");
 
         if (mode === "login") {
-            if (email === "evelyn.neves89@gmail.com" && password === "123456") {
+            if (email === "evelyn@gmail.com" && password === "a") {
                 onSuccess?.();
                 onClose();
             } else {
