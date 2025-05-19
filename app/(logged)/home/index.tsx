@@ -79,7 +79,7 @@ export default function Home() {
                         </Text>
                     </View>
                 </View>
-                <StatementCard transactions={userData.transactions} />
+                <StatementCard transactions={userData.transactions} title="Extrato" />
             </View>
         </ScreenWrapper>
     );

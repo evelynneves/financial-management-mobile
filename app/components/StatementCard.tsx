@@ -2,12 +2,14 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
-export default function StatementCard({transactions}: {transactions: any[]}) {
+export default function StatementCard({transactions, title }: {transactions: any[], title?: string;}) {
 	return (
 		<View style={styles.card}>
-			<View style={styles.header}>
-				<Text style={styles.title}>Extrato</Text>
-			</View>
+            {title && (
+                <View style={styles.header}>
+                <Text style={styles.title}>{title}</Text>
+                </View>
+            )}
 
 			{transactions.map((item, index) => (
 			<View key={index} style={styles.transaction}>
