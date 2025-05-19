@@ -10,10 +10,15 @@ import {
     ImageSourcePropType,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { useState } from "react";
+import AuthModal from "../components/AuthModal";
 
 export default function Index() {
     const { login } = useAuth();
     const router = useRouter();
+
+    const [showSignup, setShowSignup] = useState(false);
+    const [showLogin, setShowLogin] = useState(false);
 
     const handleLogin = () => {
         login();
@@ -25,22 +30,34 @@ export default function Index() {
             <ScrollView>
                 <View style={styles.content}>
                     <Text style={styles.title}>
-                        Experimente mais liberdade no controle da sua vida financeira. Crie
-                        sua conta com a gente!
+                        Experimente mais liberdade no controle da sua vida
+                        financeira. Crie sua conta com a gente!
                     </Text>
+
                     <View style={styles.illustrationContainer}>
                         <Image
                             style={styles.illustration}
                             source={require("@/assets/images/illustration_banner.svg")}
                         />
                     </View>
+
                     <View style={styles.buttonContainer}>
-                        <TouchableOpacity style={styles.primaryButton} onPress={handleLogin}>
-                            <Text style={styles.primaryButtonText}>Abrir conta</Text>
+                        <TouchableOpacity
+                            style={styles.primaryButton}
+                            onPress={() => setShowSignup(true)}
+                        >
+                            <Text style={styles.primaryButtonText}>
+                                Abrir conta
+                            </Text>
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.secondaryButton} onPress={handleLogin}>
-                            <Text style={styles.secondaryButtonText}>Já tenho conta</Text>
+                        <TouchableOpacity
+                            style={styles.secondaryButton}
+                            onPress={() => setShowLogin(true)}
+                        >
+                            <Text style={styles.secondaryButtonText}>
+                                Já tenho conta
+                            </Text>
                         </TouchableOpacity>
                     </View>
 
@@ -48,6 +65,7 @@ export default function Index() {
                         <Text style={styles.subtitle}>
                             Vantagens do nosso banco:
                         </Text>
+
                         <Feature
                             icon={require("@/assets/images/gift_icon.svg")}
                             title="Conta e cartão gratuitos"
@@ -70,6 +88,7 @@ export default function Index() {
                         />
                     </View>
                 </View>
+
                 <View style={styles.footer}>
                     <View style={styles.footerContainer}>
                         <Text style={styles.footerTitle}>Serviços</Text>
@@ -81,25 +100,53 @@ export default function Index() {
                     <View style={styles.footerContainer}>
                         <Text style={styles.footerTitle}>Contato</Text>
                         <Text style={styles.footerText}>0800 040 206 08</Text>
-                        <Text style={styles.footerText}>meajuda@bytebank.com.br</Text>
-                        <Text style={styles.footerText}>ouvidoria@bytebank.com.br</Text>
+                        <Text style={styles.footerText}>
+                            meajuda@bytebank.com.br
+                        </Text>
+                        <Text style={styles.footerText}>
+                            ouvidoria@bytebank.com.br
+                        </Text>
                     </View>
 
                     <View style={styles.footerContainer}>
-                        <Text style={styles.footerTitle}>Desenvolvido por Alura</Text>
+                        <Text style={styles.footerTitle}>
+                            Desenvolvido por Alura
+                        </Text>
                         <Image
                             source={require("@/assets/images/logo_footer.svg")}
                             style={styles.logo}
                         />
                         <View style={styles.socialMediaContainer}>
-                            <Image style={styles.socialMediaIcon} source={require("@/assets/images/instagram_icon.svg")}></Image>
-                            <Image style={styles.socialMediaIcon} source={require("@/assets/images/whatsapp_icon.svg")}></Image>
-                            <Image style={styles.socialMediaIcon} source={require("@/assets/images/youtube_icon.svg")}></Image>
+                            <Image
+                                style={styles.socialMediaIcon}
+                                source={require("@/assets/images/instagram_icon.svg")}
+                            />
+                            <Image
+                                style={styles.socialMediaIcon}
+                                source={require("@/assets/images/whatsapp_icon.svg")}
+                            />
+                            <Image
+                                style={styles.socialMediaIcon}
+                                source={require("@/assets/images/youtube_icon.svg")}
+                            />
                         </View>
                     </View>
-
                 </View>
             </ScrollView>
+
+            {/* Modais */}
+            <AuthModal
+                visible={showSignup}
+                onClose={() => setShowSignup(false)}
+                mode="signup"
+                onSuccess={handleLogin}
+            />
+            <AuthModal
+                visible={showLogin}
+                onClose={() => setShowLogin(false)}
+                mode="login"
+                onSuccess={handleLogin}
+            />
         </LinearGradient>
     );
 }
@@ -196,7 +243,7 @@ const styles = StyleSheet.create({
     featureCard: {
         alignItems: "center",
         marginBottom: 24,
-        gap: 10
+        gap: 10,
     },
     featureIcon: {
         width: 73,
@@ -224,7 +271,6 @@ const styles = StyleSheet.create({
     footerContainer: {
         gap: 8,
         alignItems: "center",
-
     },
     footerTitle: {
         color: "#fff",
