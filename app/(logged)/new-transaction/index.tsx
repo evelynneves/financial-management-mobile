@@ -116,7 +116,7 @@ const NewTransaction = () => {
                     : transactionType === "transferencia" ? "Transferência"
                     : transactionType === "investimento" ? "Investimento"
                     : "Resgate",
-                amount: formatCurrency(numericAmount),
+                amount: numericAmount,
                 isNegative,
                 ...((transactionType === "investimento" || transactionType === "resgate") && { investmentType }),
                 attachmentFileId: null,
@@ -174,8 +174,9 @@ const NewTransaction = () => {
         return parseFloat(value.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0;
     };
 
-    const formatCurrency = (value: number): string => {
-        return `R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
+    const formatCurrency = (value: number, isNegative?: boolean): string => {
+        const prefix = isNegative ? "- R$" : "R$";
+        return `${prefix} ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
     };
 
     const getEmptyInvestments = () => ({

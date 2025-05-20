@@ -78,42 +78,48 @@ export default function Investments() {
                 <Text style={styles.statistics}>Estatísticas</Text>
 
                 <View style={styles.chartCard}>
-                    {userData?.investments ? (
-                        <PieChart
-                            data={chartData.map((item) => ({
-                                name: item.name,
-                                population: item.population,
-                                color: item.color,
-                                legendFontColor: "#fff",
-                                legendFontSize: 0,
-                            }))}
-                            width={Math.min(screenWidth - 64, 300)}
-                            height={180}
-                            style={{ alignSelf: "center" }}
-                            chartConfig={{ color: () => "#fff" }}
-                            accessor={"population"}
-                            backgroundColor={"transparent"}
-                            paddingLeft={"70"}
-                            absolute
-                            hasLegend={false}
-                        />
-                    ) : (
+                    {!userData?.investments ||
+                    userData?.investments?.totalAmount === "R$ 0,00" ? (
                         <Text style={styles.emptyChartMessage}>
                             💡 {"\n"}
                             Quer ver seus investimentos crescerem?{"\n"}
                             Faça seu primeiro aporte e acompanhe a evolução
                             aqui!
                         </Text>
-                    )}
+                    ) : (
+                        <>
+                            <PieChart
+                                data={chartData.map((item) => ({
+                                    name: item.name,
+                                    population: item.population,
+                                    color: item.color,
+                                    legendFontColor: "#fff",
+                                    legendFontSize: 0,
+                                }))}
+                                width={Math.min(screenWidth - 64, 300)}
+                                height={180}
+                                style={{ alignSelf: "center" }}
+                                chartConfig={{ color: () => "#fff" }}
+                                accessor={"population"}
+                                backgroundColor={"transparent"}
+                                paddingLeft={"70"}
+                                absolute
+                                hasLegend={false}
+                            />
 
-                    <View style={styles.legend}>
-                        {chartData.map((item, index) => (
-                            <Text key={index} style={styles.legendItem}>
-                                <Text style={{ color: item.color }}>● </Text>
-                                {item.name} - {formatToBRL(item.population)}
-                            </Text>
-                        ))}
-                    </View>
+                            <View style={styles.legend}>
+                                {chartData.map((item, index) => (
+                                    <Text key={index} style={styles.legendItem}>
+                                        <Text style={{ color: item.color }}>
+                                            ●{" "}
+                                        </Text>
+                                        {item.name} -{" "}
+                                        {formatToBRL(item.population)}
+                                    </Text>
+                                ))}
+                            </View>
+                        </>
+                    )}
                 </View>
             </View>
         </ScreenWrapper>
