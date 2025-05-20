@@ -89,7 +89,7 @@ const NewTransaction = () => {
                     value={amount}
                     onChangeText={setAmount}
                     keyboardType="numeric"
-                    placeholder="R$ 00,00"
+                    placeholder="R$ 0,00"
                     style={styles.input}
                 />
 
