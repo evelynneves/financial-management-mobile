@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
+import ConfirmEditModal from "./ConfirmEditModal";
 import { useAuth } from "@/app/context/auth-context";
 
 export type TransactionType =
@@ -30,12 +31,15 @@ export default function StatementCard({
 }) {
     const { refreshUserData } = useAuth();
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
     const [selectedTransaction, setSelectedTransaction] =
         useState<Transaction | null>(null);
 
     const formatCurrency = (value: number, isNegative?: boolean): string => {
         const prefix = isNegative ? "- R$" : "R$";
-        return `${prefix} ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
+        return `${prefix} ${value.toLocaleString("pt-BR", {
+            minimumFractionDigits: 2,
+        })}`;
     };
 
     return (
@@ -64,7 +68,12 @@ export default function StatementCard({
                                         color="#004D61"
                                     />
                                 </TouchableOpacity>
-                                <TouchableOpacity>
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        setSelectedTransaction(item);
+                                        setShowEditModal(true);
+                                    }}
+                                >
                                     <MaterialCommunityIcons
                                         name="pencil"
                                         size={20}
@@ -96,9 +105,7 @@ export default function StatementCard({
                                 {item.type}
                             </Text>
                             <Text style={styles.date}>
-                                {new Date(item.date).toLocaleDateString(
-                                    "pt-BR"
-                                )}
+                                {new Date(item.date).toLocaleDateString("pt-BR")}
                             </Text>
                         </View>
 
@@ -108,8 +115,15 @@ export default function StatementCard({
                             </Text>
                         )}
 
-                        <Text style={[styles.amount, item.isNegative ? { color: "#f44336" } : { color: "#000" }]}>
-                        {formatCurrency(item.amount, item.isNegative)}
+                        <Text
+                            style={[
+                                styles.amount,
+                                item.isNegative
+                                    ? { color: "#f44336" }
+                                    : { color: "#000" },
+                            ]}
+                        >
+                            {formatCurrency(item.amount, item.isNegative)}
                         </Text>
 
                         <View style={styles.separator} />
@@ -126,6 +140,20 @@ export default function StatementCard({
                 }}
                 onFinish={() => {
                     setShowConfirmModal(false);
+                    setSelectedTransaction(null);
+                    refreshUserData();
+                }}
+            />
+
+            <ConfirmEditModal
+                visible={showEditModal}
+                transaction={selectedTransaction}
+                onClose={() => {
+                    setShowEditModal(false);
+                    setSelectedTransaction(null);
+                }}
+                onFinish={() => {
+                    setShowEditModal(false);
                     setSelectedTransaction(null);
                     refreshUserData();
                 }}
