@@ -13,6 +13,7 @@ import {
     StyleSheet,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { useAuth } from "@/app/context/auth-context";
 
 const transactionTypes = [
     "Resgate",
@@ -20,127 +21,9 @@ const transactionTypes = [
     "Transferência",
     "Depósito",
 ];
-const userData = {
-    personalData: {
-        name: "Joana",
-        email: "joana@gmail.com",
-    },
-    transactions: [
-        {
-            month: "Março",
-            date: "2025-03-01",
-            type: "Resgate",
-            amount: "500,00",
-            investmentType: "Previdência Privada Fixa",
-            attachmentFileId: "",
-            isNegative: false,
-        },
-        {
-            month: "Janeiro",
-            date: "2025-01-15",
-            type: "Resgate",
-            amount: "250,00",
-            investmentType: "Fundos de Investimento",
-            attachmentFileId: "",
-            isNegative: false,
-        },
-        {
-            month: "Janeiro",
-            date: "2025-01-10",
-            type: "Resgate",
-            amount: "500,00",
-            investmentType: "Tesouro Direto",
-            attachmentFileId: "",
-            isNegative: false,
-        },
-        {
-            month: "Dezembro",
-            date: "2024-12-20",
-            type: "Investimento",
-            amount: "1.000,00",
-            investmentType: "Bolsa de Valores",
-            attachmentFileId: "",
-            isNegative: true,
-        },
-        {
-            month: "Dezembro",
-            date: "2024-12-15",
-            type: "Investimento",
-            amount: "1.000,00",
-            investmentType: "Fundos de Investimento",
-            attachmentFileId: "",
-            isNegative: true,
-        },
-        {
-            month: "Dezembro",
-            date: "2024-12-10",
-            type: "Investimento",
-            amount: "1.000,00",
-            investmentType: "Previdência Privada Variável",
-            attachmentFileId: "",
-            isNegative: true,
-        },
-        {
-            month: "Dezembro",
-            date: "2024-12-05",
-            type: "Investimento",
-            amount: "1.000,00",
-            investmentType: "Previdência Privada Fixa",
-            attachmentFileId: "",
-            isNegative: true,
-        },
-        {
-            month: "Dezembro",
-            date: "2024-12-01",
-            type: "Investimento",
-            amount: "1.000,00",
-            investmentType: "Tesouro Direto",
-            attachmentFileId: "",
-            isNegative: true,
-        },
-        {
-            month: "Novembro",
-            date: "2024-11-15",
-            type: "Transferência",
-            amount: "750,00",
-            attachmentFileId: "",
-            isNegative: true,
-        },
-        {
-            month: "Novembro",
-            date: "2024-11-10",
-            type: "Depósito",
-            amount: "3.000,00",
-            attachmentFileId: "",
-            isNegative: false,
-        },
-        {
-            month: "Novembro",
-            date: "2024-11-01",
-            type: "Depósito",
-            amount: "2.000,00",
-            attachmentFileId: "",
-            isNegative: false,
-        },
-    ],
-    investments: {
-        totalAmount: "R$ 4.750,00",
-        fixedIncome: {
-            total: "R$ 2.250,00",
-            governmentBonds: "R$ 500,00",
-            privatePensionFixed: "R$ 500,00",
-            fixedIncomeFunds: "R$ 1.250,00",
-        },
-        variableIncome: {
-            total: "R$ 2.500,00",
-            privatePensionVariable: "R$ 1.000,00",
-            stockMarket: "R$ 1.000,00",
-            investmentFunds: "R$ 500,00",
-        },
-    },
-};
 
 export default function Transactions() {
+    const { userData } = useAuth();
     const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -156,7 +39,7 @@ export default function Transactions() {
     };
 
     const filteredTransactions = useMemo(() => {
-        return userData.transactions.filter((t: any) => {
+        return userData?.transactions.filter((t: any) => {
             const matchesType = selectedTypes.length
                 ? selectedTypes.includes(t.type)
                 : true;
@@ -174,7 +57,7 @@ export default function Transactions() {
 
             return matchesType && matchesSearch && matchesDate;
         });
-    }, [selectedTypes, searchTerm, selectedDate, userData.transactions]);
+    }, [selectedTypes, searchTerm, selectedDate, userData?.transactions]);
     return (
         <ScreenWrapper>
             <View style={styles.container}>

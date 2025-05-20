@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+    createContext,
+    useContext,
+    useEffect,
+    useState,
+    ReactNode,
+} from "react";
 import {
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
@@ -7,12 +13,52 @@ import {
     updateProfile,
     User,
 } from "firebase/auth";
+import {
+    getFirestore,
+    collection,
+    getDocs,
+    doc,
+    getDoc,
+} from "firebase/firestore";
 import { auth } from "@/firebase/config";
 import { useRouter } from "expo-router";
+
+type Transaction = {
+    month: string;
+    date: string;
+    type: string;
+    amount: string;
+    investmentType?: string;
+    attachmentFileId?: string;
+    isNegative?: boolean;
+};
+
+type Investment = {
+    totalAmount: string;
+    fixedIncome: {
+        total: string;
+        governmentBonds: string;
+        privatePensionFixed: string;
+        fixedIncomeFunds: string;
+    };
+    variableIncome: {
+        total: string;
+        privatePensionVariable: string;
+        stockMarket: string;
+        investmentFunds: string;
+    };
+};
+
+type UserData = {
+    transactions: Transaction[];
+    investments: Investment | null;
+};
 
 type AuthContextType = {
     user: User | null;
     loading: boolean;
+    userData: UserData | null;
+    setUserData: React.Dispatch<React.SetStateAction<UserData | null>>;
     login: (email: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
     signUp: (email: string, password: string, name: string) => Promise<void>;
@@ -20,15 +66,23 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-     const router = useRouter();
+export function AuthProvider({ children }: { children: ReactNode }) {
+    const router = useRouter();
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+    const [userData, setUserData] = useState<UserData | null>(null);
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+        const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
             setUser(firebaseUser);
             setLoading(false);
+
+            if (firebaseUser) {
+                const data = await getUserData(firebaseUser.uid);
+                setUserData(data);
+            } else {
+                setUserData(null);
+            }
         });
 
         return unsubscribe;
@@ -36,7 +90,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const login = async (email: string, password: string) => {
         try {
-            await signInWithEmailAndPassword(auth, email, password);
+            const result = await signInWithEmailAndPassword(
+                auth,
+                email,
+                password
+            );
+            const data = await getUserData(result.user.uid);
+            setUserData(data);
             router.replace("/home");
         } catch (error: any) {
             console.error("Login error:", error.message);
@@ -47,6 +107,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const logout = async () => {
         try {
             await signOut(auth);
+            setUserData(null);
             router.replace("/");
         } catch (error: any) {
             console.error("Logout error:", error.message);
@@ -65,6 +126,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 displayName: name,
             });
             setUser({ ...userCredential.user, displayName: name });
+
+            const data = await getUserData(userCredential.user.uid);
+            setUserData(data);
             router.replace("/home");
         } catch (error: any) {
             console.error("SignUp error:", error);
@@ -73,10 +137,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     return (
-        <AuthContext.Provider value={{ user, loading, login, logout, signUp }}>
+        <AuthContext.Provider
+            value={{
+                user,
+                loading,
+                userData,
+                setUserData,
+                login,
+                logout,
+                signUp,
+            }}
+        >
             {children}
         </AuthContext.Provider>
     );
 }
 
 export const useAuth = () => useContext(AuthContext)!;
+
+async function getUserData(uid: string): Promise<UserData> {
+    const db = getFirestore();
+    const transactionsRef = collection(db, "users", uid, "transactions");
+    const transactionsSnap = await getDocs(transactionsRef);
+    const transactions = transactionsSnap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+    })) as unknown as Transaction[];
+
+    const investmentsDocRef = doc(db, "users", uid, "investments", "summary");
+    const investmentsSnap = await getDoc(investmentsDocRef);
+    const investments = investmentsSnap.exists()
+        ? (investmentsSnap.data() as Investment)
+        : null;
+
+    return { transactions, investments };
+}

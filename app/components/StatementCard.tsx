@@ -10,47 +10,54 @@ export default function StatementCard({transactions, title }: {transactions: any
                 <Text style={styles.title}>{title}</Text>
                 </View>
             )}
+            
+            {transactions.length === 0 ? (
+                <Text style={styles.emptyMessage}>
+                    🤖 Nenhuma transação por aqui ainda...{"\n"}
+                    Vamos movimentar sua conta? 💸
+                </Text>
+                ) : (
+                transactions.map((item, index) => (
+                    <View key={index} style={styles.transaction}>
+                        <View style={styles.row}>
+                            <Text style={styles.month}>{item.month}</Text>
+                            <View style={styles.iconGroup}>
+                                <TouchableOpacity>
+                                    <MaterialCommunityIcons name="eye" size={20} color="#004D61" />
+                                </TouchableOpacity>
+                                <TouchableOpacity>
+                                    <MaterialCommunityIcons name="pencil" size={20} color="#004D61"/>
+                                </TouchableOpacity>
+                                <TouchableOpacity>
+                                    <MaterialCommunityIcons name="trash-can" size={20} color="#004D61" />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                        <View style={styles.row}>
+                            <Text style={[styles.type, item.isNegative && { color: "red" }]}>
+                                {item.type}
+                            </Text>
+                            <Text style={styles.date}>
+                                {new Date(item.date).toLocaleDateString("pt-BR")}
+                            </Text>
+                        </View>
 
-			{transactions.map((item, index) => (
-			<View key={index} style={styles.transaction}>
-				<View style={styles.row}>
-					<Text style={styles.month}>{item.month}</Text>
-					<View style={styles.iconGroup}>
-						<TouchableOpacity>
-							<MaterialCommunityIcons name="eye" size={20} color="#004D61" />
-						</TouchableOpacity>
-						<TouchableOpacity>
-							<MaterialCommunityIcons name="pencil" size={20} color="#004D61"/>
-						</TouchableOpacity>
-						<TouchableOpacity>
-							<MaterialCommunityIcons name="trash-can" size={20} color="#004D61" />
-						</TouchableOpacity>
-					</View>
-				</View>
-				<View style={styles.row}>
-					<Text style={[styles.type, item.isNegative && { color: "red" }]}>
-						{item.type}
-					</Text>
-					<Text style={styles.date}>
-						{new Date(item.date).toLocaleDateString("pt-BR")}
-					</Text>
-				</View>
+                        {item.investmentType && (
+                            <Text style={styles.investmentType}>{item.investmentType}</Text>
+                        )}
 
-				{item.investmentType && (
-					<Text style={styles.investmentType}>{item.investmentType}</Text>
-				)}
-
-				<Text
-					style={[
-						styles.amount,
-						item.isNegative ? { color: "#f44336" } : { color: "#000" },
-					]}
-					>
-					{item.isNegative ? `-R$ ${item.amount}` : `R$ ${item.amount}`}
-				</Text>
-				<View style={styles.separator} />
-			</View>
-			))}
+                        <Text
+                            style={[
+                                styles.amount,
+                                item.isNegative ? { color: "#f44336" } : { color: "#000" },
+                            ]}
+                            >
+                            {item.isNegative ? `-R$ ${item.amount}` : `R$ ${item.amount}`}
+                        </Text>
+                        <View style={styles.separator} />
+                    </View>
+                ))
+            )}
 		</View>
 	);
 }
@@ -72,6 +79,13 @@ const styles = StyleSheet.create({
 		fontWeight: "bold",
 		color: "#000",
 	},
+    emptyMessage: {
+        textAlign: "center",
+        color: "#555",
+        fontSize: 16,
+        marginTop: 20,
+        lineHeight: 22,
+    },
 	iconGroup: {
 		flexDirection: "row",
 		gap: 8,

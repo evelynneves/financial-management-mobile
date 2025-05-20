@@ -1,37 +1,59 @@
 import ScreenWrapper from "@/app/components/ScreenWrapper";
-import React from "react";
+import { useAuth } from "@/app/context/auth-context";
+import React, { useMemo } from "react";
 import { View, StyleSheet, Text, Dimensions } from "react-native";
 import { PieChart } from "react-native-chart-kit";
 
 const screenWidth = Dimensions.get("window").width;
 
 export default function Investments() {
-    const total = "R$ 50.000,00";
-    const rendaFixa = "R$ 36.000,00";
-    const rendaVariavel = "R$ 14.000,00";
+    const { userData } = useAuth();
 
-    const chartData = [
-        {
-            name: "Fundos de investimento",
-            population: 10000,
-            color: "#2567F9",
-        },
-        {
-            name: "Tesouro Direto",
-            population: 8000,
-            color: "#8F3CFF",
-        },
-        {
-            name: "Previdência Privada",
-            population: 6000,
-            color: "#FF3C82",
-        },
-        {
-            name: "Bolsa de Valores",
-            population: 14000,
-            color: "#F1823D",
-        },
-    ];
+    const parseCurrency = (value: string | undefined): number => {
+        if (!value) return 0;
+        return (
+            parseFloat(value.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0
+        );
+    };
+
+    const total = userData?.investments?.totalAmount ?? "R$ 0,00";
+    const rendaFixa = userData?.investments?.fixedIncome.total ?? "R$ 0,00";
+    const rendaVariavel = userData?.investments?.variableIncome.total ?? "R$ 0,00";
+
+    const chartData = useMemo(() => {
+        if (!userData?.investments) return [];
+
+        const v = userData.investments.variableIncome;
+        const f = userData.investments.fixedIncome;
+
+        return [
+            {
+                name: "Bolsa de Valores",
+                population: parseCurrency(v.stockMarket),
+                color: "#3DBF6E",
+            },
+            {
+                name: "Fundos de Investimento",
+                population: parseCurrency(v.investmentFunds),
+                color: "#2567F9",
+            },
+            {
+                name: "Previdência Privada Fixa",
+                population: parseCurrency(f.privatePensionFixed),
+                color: "#FF3C82",
+            },
+            {
+                name: "Previdência Privada Variável",
+                population: parseCurrency(v.privatePensionVariable),
+                color: "#F1823D",
+            },
+            {
+                name: "Tesouro Direto",
+                population: parseCurrency(f.governmentBonds),
+                color: "#8F3CFF",
+            },
+        ];
+    }, [userData]);
 
     const formatToBRL = (value: number) =>
         `R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;

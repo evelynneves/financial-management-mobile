@@ -6,7 +6,7 @@ import StatementCard from "@/app/components/StatementCard";
 import { useAuth } from "@/app/context/auth-context";
 
 export default function Home() {
-    const { user } = useAuth();
+    const { user, userData } = useAuth();
     const [isVisible, setIsVisible] = useState(true);
 
     const toggleVisibility = () => setIsVisible(!isVisible);
@@ -19,55 +19,13 @@ export default function Home() {
         year: "numeric",
     }).format(today);
 
-    const userData = {
-        transactions: [
-            {
-                month: "Março",
-                date: "2025-03-01",
-                type: "Resgate",
-                amount: "500,00",
-                investmentType: "Previdência Privada Fixa",
-                isNegative: false,
-            },
-            {
-                month: "Janeiro",
-                date: "2025-01-15",
-                type: "Resgate",
-                amount: "250,00",
-                investmentType: "Fundos de Investimento",
-                isNegative: false,
-            },
-            {
-                month: "Janeiro",
-                date: "2025-01-10",
-                type: "Resgate",
-                amount: "500,00",
-                investmentType: "Tesouro Direto",
-                isNegative: false,
-            },
-            {
-                month: "Dezembro",
-                date: "2024-12-20",
-                type: "Investimento",
-                amount: "1.000,00",
-                investmentType: "Bolsa de Valores",
-                isNegative: true,
-            },
-            {
-                month: "Novembro",
-                date: "2024-11-10",
-                type: "Depósito",
-                amount: "3.000,00",
-                isNegative: false,
-            },
-        ],
-    };
-
     return (
         <ScreenWrapper>
             <View style={styles.container}>
                 <View style={styles.card}>
-                    <Text style={styles.greeting}>Olá, {user?.displayName || "usuário"}! :)</Text>
+                    <Text style={styles.greeting}>
+                        Olá, {user?.displayName || "usuário"}! :)
+                    </Text>
                     <Text style={styles.date}>{formattedDate}</Text>
 
                     <View style={styles.balanceContainer}>
@@ -86,13 +44,17 @@ export default function Home() {
 
                         <Text style={styles.accountType}>Conta Corrente</Text>
                         <Text style={styles.amount}>
-                            {isVisible ? "R$ 2.500,00" : "••••••••"}
+                            {isVisible
+                                ? userData?.investments
+                                    ? userData?.investments?.totalAmount
+                                    : "R$ 0,00"
+                                : "••••••••"}
                         </Text>
                     </View>
                 </View>
 
                 <StatementCard
-                    transactions={userData.transactions}
+                    transactions={userData ? userData.transactions : []}
                     title="Extrato"
                 />
             </View>
