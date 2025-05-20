@@ -9,6 +9,18 @@ import {
 import RNPickerSelect from "react-native-picker-select";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import ScreenWrapper from "@/app/components/ScreenWrapper";
+import {
+    getFirestore,
+    collection,
+    addDoc,
+    doc,
+    getDoc,
+    setDoc,
+    serverTimestamp,
+} from "firebase/firestore";
+import { auth } from "@/firebase/config";
+import { router } from "expo-router";
+import { useAuth } from "@/app/context/auth-context";
 
 const transactionTypes = [
     { label: "Depósito", value: "deposito" },
@@ -34,6 +46,197 @@ const NewTransaction = () => {
     const [date, setDate] = useState(new Date());
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [amount, setAmount] = useState("");
+    const { refreshUserData } = useAuth();
+
+    const db = getFirestore();
+
+    const handleSubmit = async () => {
+        try {
+            const uid = auth.currentUser?.uid;
+            console.log("uid", uid);
+            console.log("amount", amount)
+            if (!uid || !amount) return;
+
+            const monthNames = [
+                "Janeiro",
+                "Fevereiro",
+                "Março",
+                "Abril",
+                "Maio",
+                "Junho",
+                "Julho",
+                "Agosto",
+                "Setembro",
+                "Outubro",
+                "Novembro",
+                "Dezembro",
+            ];
+
+            const month = monthNames[date.getMonth()];
+            const formattedDate = date.toISOString().split("T")[0];
+
+            const numericAmount = parseCurrency(amount);
+            const isNegative =
+                transactionType !== "deposito" && transactionType !== "resgate";
+
+            const newTransaction = {
+                month,
+                date: formattedDate,
+                type:
+                    transactionType === "deposito"
+                        ? "Depósito"
+                        : transactionType === "transferencia"
+                        ? "Transferência"
+                        : transactionType === "investimento"
+                        ? "Investimento"
+                        : "Resgate",
+                amount: formatCurrency(numericAmount),
+                isNegative,
+                ...((transactionType === "investimento" ||
+                    transactionType === "resgate") && {
+                    investmentType,
+                }),
+                attachmentFileId: null,
+                createdAt: serverTimestamp(),
+            };
+            console.log("newTransactoin", newTransaction);
+            await addDoc(
+                collection(db, "users", uid, "transactions"),
+                newTransaction
+            );
+
+            if (
+                newTransaction.type === "Investimento" ||
+                newTransaction.type === "Resgate"
+            ) {
+                const investmentsRef = doc(
+                    db,
+                    "users",
+                    uid,
+                    "investments",
+                    "summary"
+                );
+                const snapshot = await getDoc(investmentsRef);
+                const data = snapshot.exists()
+                    ? parseInvestmentData(snapshot.data())
+                    : getEmptyInvestments();
+
+                const delta =
+                    newTransaction.type === "Resgate"
+                        ? -numericAmount
+                        : numericAmount;
+
+                switch (investmentType) {
+                    case "Fundos de investimento":
+                        data.variableIncome.investmentFunds += delta;
+                        break;
+                    case "Tesouro Direto":
+                        data.fixedIncome.governmentBonds += delta;
+                        break;
+                    case "Previdência Privada Fixa":
+                        data.fixedIncome.privatePensionFixed += delta;
+                        break;
+                    case "Previdência Privada Variável":
+                        data.variableIncome.privatePensionVariable += delta;
+                        break;
+                    case "Bolsa de Valores":
+                        data.variableIncome.stockMarket += delta;
+                        break;
+                }
+
+                data.fixedIncome.total =
+                    data.fixedIncome.privatePensionFixed +
+                    data.fixedIncome.governmentBonds;
+                data.variableIncome.total =
+                    data.variableIncome.investmentFunds +
+                    data.variableIncome.privatePensionVariable +
+                    data.variableIncome.stockMarket;
+                data.totalAmount =
+                    data.fixedIncome.total + data.variableIncome.total;
+
+                await setDoc(investmentsRef, toCurrencyData(data));
+            }
+            await refreshUserData();
+            resetForm();
+            router.replace("/home");
+        } catch (err) {
+            console.error("Erro ao salvar transação:", err);
+        }
+    };
+
+    const resetForm = () => {
+        setTransactionType("deposito");
+        setInvestmentType("");
+        setAmount("");
+        setDate(new Date());
+    };
+
+    const parseCurrency = (value: string): number => {
+        return (
+            parseFloat(value.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0
+        );
+    };
+
+    const formatCurrency = (value: number): string => {
+        return `R$ ${value.toLocaleString("pt-BR", {
+            minimumFractionDigits: 2,
+        })}`;
+    };
+
+    const getEmptyInvestments = () => ({
+        totalAmount: 0,
+        fixedIncome: {
+            total: 0,
+            governmentBonds: 0,
+            privatePensionFixed: 0,
+        },
+        variableIncome: {
+            total: 0,
+            investmentFunds: 0,
+            privatePensionVariable: 0,
+            stockMarket: 0,
+        },
+    });
+
+    const parseInvestmentData = (data: any) => ({
+        totalAmount: parseCurrency(data.totalAmount),
+        fixedIncome: {
+            total: parseCurrency(data.fixedIncome.total),
+            governmentBonds: parseCurrency(data.fixedIncome.governmentBonds),
+            privatePensionFixed: parseCurrency(
+                data.fixedIncome.privatePensionFixed
+            ),
+        },
+        variableIncome: {
+            total: parseCurrency(data.variableIncome.total),
+            investmentFunds: parseCurrency(data.variableIncome.investmentFunds),
+            privatePensionVariable: parseCurrency(
+                data.variableIncome.privatePensionVariable
+            ),
+            stockMarket: parseCurrency(data.variableIncome.stockMarket),
+        },
+    });
+
+    const toCurrencyData = (data: any) => ({
+        totalAmount: formatCurrency(data.totalAmount),
+        fixedIncome: {
+            total: formatCurrency(data.fixedIncome.total),
+            governmentBonds: formatCurrency(data.fixedIncome.governmentBonds),
+            privatePensionFixed: formatCurrency(
+                data.fixedIncome.privatePensionFixed
+            ),
+        },
+        variableIncome: {
+            total: formatCurrency(data.variableIncome.total),
+            investmentFunds: formatCurrency(
+                data.variableIncome.investmentFunds
+            ),
+            privatePensionVariable: formatCurrency(
+                data.variableIncome.privatePensionVariable
+            ),
+            stockMarket: formatCurrency(data.variableIncome.stockMarket),
+        },
+    });
 
     return (
         <ScreenWrapper>
@@ -51,11 +254,7 @@ const NewTransaction = () => {
                 {(transactionType === "investimento" ||
                     transactionType === "resgate") && (
                     <>
-                        <Text style={styles.label}>
-                            {transactionType === "resgate"
-                                ? "De qual investimento deseja resgatar?"
-                                : "Tipo de Investimento"}
-                        </Text>
+                        <Text style={styles.label}>Tipo de Investimento</Text>
                         <RNPickerSelect
                             onValueChange={setInvestmentType}
                             value={investmentType}
@@ -98,7 +297,10 @@ const NewTransaction = () => {
                     <Text style={styles.uploadText}>Escolher arquivo</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.submitButton}>
+                <TouchableOpacity
+                    style={styles.submitButton}
+                    onPress={handleSubmit}
+                >
                     <Text style={styles.submitText}>Concluir transação</Text>
                 </TouchableOpacity>
             </View>

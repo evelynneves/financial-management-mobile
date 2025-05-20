@@ -19,6 +19,8 @@ import {
     getDocs,
     doc,
     getDoc,
+    query,
+    orderBy,
 } from "firebase/firestore";
 import { auth } from "@/firebase/config";
 import { useRouter } from "expo-router";
@@ -62,6 +64,7 @@ type AuthContextType = {
     login: (email: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
     signUp: (email: string, password: string, name: string) => Promise<void>;
+    refreshUserData: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -136,6 +139,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     };
 
+    const refreshUserData = async () => {
+        if (!auth.currentUser) return;
+        const data = await getUserData(auth.currentUser.uid);
+        setUserData(data);
+    };
+
     return (
         <AuthContext.Provider
             value={{
@@ -143,6 +152,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 loading,
                 userData,
                 setUserData,
+                refreshUserData,
                 login,
                 logout,
                 signUp,
@@ -155,10 +165,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export const useAuth = () => useContext(AuthContext)!;
 
-async function getUserData(uid: string): Promise<UserData> {
+export async function getUserData(uid: string): Promise<UserData> {
     const db = getFirestore();
+
     const transactionsRef = collection(db, "users", uid, "transactions");
-    const transactionsSnap = await getDocs(transactionsRef);
+    const transactionsQuery = query(
+        transactionsRef,
+        orderBy("createdAt", "desc")
+    );
+    const transactionsSnap = await getDocs(transactionsQuery);
     const transactions = transactionsSnap.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
