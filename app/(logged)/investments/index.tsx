@@ -18,7 +18,8 @@ export default function Investments() {
 
     const total = userData?.investments?.totalAmount ?? "R$ 0,00";
     const rendaFixa = userData?.investments?.fixedIncome.total ?? "R$ 0,00";
-    const rendaVariavel = userData?.investments?.variableIncome.total ?? "R$ 0,00";
+    const rendaVariavel =
+        userData?.investments?.variableIncome.total ?? "R$ 0,00";
 
     const chartData = useMemo(() => {
         if (!userData?.investments) return [];
@@ -77,24 +78,33 @@ export default function Investments() {
                 <Text style={styles.statistics}>Estatísticas</Text>
 
                 <View style={styles.chartCard}>
-                    <PieChart
-                        data={chartData.map((item) => ({
-                            name: item.name,
-                            population: item.population,
-                            color: item.color,
-                            legendFontColor: "#fff",
-                            legendFontSize: 0,
-                        }))}
-                        width={Math.min(screenWidth - 64, 300)}
-                        height={180}
-                        style={{ alignSelf: "center" }}
-                        chartConfig={{ color: () => "#fff" }}
-                        accessor={"population"}
-                        backgroundColor={"transparent"}
-                        paddingLeft={"70"}
-                        absolute
-                        hasLegend={false}
-                    />
+                    {userData?.investments ? (
+                        <PieChart
+                            data={chartData.map((item) => ({
+                                name: item.name,
+                                population: item.population,
+                                color: item.color,
+                                legendFontColor: "#fff",
+                                legendFontSize: 0,
+                            }))}
+                            width={Math.min(screenWidth - 64, 300)}
+                            height={180}
+                            style={{ alignSelf: "center" }}
+                            chartConfig={{ color: () => "#fff" }}
+                            accessor={"population"}
+                            backgroundColor={"transparent"}
+                            paddingLeft={"70"}
+                            absolute
+                            hasLegend={false}
+                        />
+                    ) : (
+                        <Text style={styles.emptyChartMessage}>
+                            💡 {"\n"}
+                            Quer ver seus investimentos crescerem?{"\n"}
+                            Faça seu primeiro aporte e acompanhe a evolução
+                            aqui!
+                        </Text>
+                    )}
 
                     <View style={styles.legend}>
                         {chartData.map((item, index) => (
@@ -156,6 +166,13 @@ const styles = StyleSheet.create({
         gap: 20,
         alignItems: "center",
         width: "100%",
+    },
+    emptyChartMessage: {
+        textAlign: "center",
+        color: "#fff",
+        fontSize: 16,
+        lineHeight: 22,
+        paddingVertical: 20,
     },
     legend: {
         gap: 10,
