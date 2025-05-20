@@ -8,19 +8,16 @@ import {
     Animated,
     View,
 } from "react-native";
-import { useRouter } from "expo-router";
 import { useAuth } from "../context/auth-context";
 
 export default function UserMenu() {
     const [visible, setVisible] = useState(false);
     const slideAnim = useRef(new Animated.Value(-150)).current;
-    const router = useRouter();
     const { logout } = useAuth();
 
     const handleLogout = () => {
         setVisible(false);
         logout?.();
-        router.replace("/");
     };
 
     useEffect(() => {

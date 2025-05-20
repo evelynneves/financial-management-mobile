@@ -3,62 +3,73 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import StatementCard from "@/app/components/StatementCard";
-
-const userData = {
-    name: "Joana",
-    transactions: [
-        {
-            month: "Março",
-            date: "2025-03-01",
-            type: "Resgate",
-            amount: "500,00",
-            investmentType: "Previdência Privada Fixa",
-            isNegative: false,
-        },
-        {
-            month: "Janeiro",
-            date: "2025-01-15",
-            type: "Resgate",
-            amount: "250,00",
-            investmentType: "Fundos de Investimento",
-            isNegative: false,
-        },
-        {
-            month: "Janeiro",
-            date: "2025-01-10",
-            type: "Resgate",
-            amount: "500,00",
-            investmentType: "Tesouro Direto",
-            isNegative: false,
-        },
-        {
-            month: "Dezembro",
-            date: "2024-12-20",
-            type: "Investimento",
-            amount: "1.000,00",
-            investmentType: "Bolsa de Valores",
-            isNegative: true,
-        },
-        {
-            month: "Novembro",
-            date: "2024-11-10",
-            type: "Depósito",
-            amount: "3.000,00",
-            isNegative: false,
-        },
-    ],
-};
+import { useAuth } from "@/app/context/auth-context";
 
 export default function Home() {
+    const { user } = useAuth();
     const [isVisible, setIsVisible] = useState(true);
+
     const toggleVisibility = () => setIsVisible(!isVisible);
+
+    const today = new Date();
+    const formattedDate = new Intl.DateTimeFormat("pt-BR", {
+        weekday: "long",
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+    }).format(today);
+
+    const userData = {
+        transactions: [
+            {
+                month: "Março",
+                date: "2025-03-01",
+                type: "Resgate",
+                amount: "500,00",
+                investmentType: "Previdência Privada Fixa",
+                isNegative: false,
+            },
+            {
+                month: "Janeiro",
+                date: "2025-01-15",
+                type: "Resgate",
+                amount: "250,00",
+                investmentType: "Fundos de Investimento",
+                isNegative: false,
+            },
+            {
+                month: "Janeiro",
+                date: "2025-01-10",
+                type: "Resgate",
+                amount: "500,00",
+                investmentType: "Tesouro Direto",
+                isNegative: false,
+            },
+            {
+                month: "Dezembro",
+                date: "2024-12-20",
+                type: "Investimento",
+                amount: "1.000,00",
+                investmentType: "Bolsa de Valores",
+                isNegative: true,
+            },
+            {
+                month: "Novembro",
+                date: "2024-11-10",
+                type: "Depósito",
+                amount: "3.000,00",
+                isNegative: false,
+            },
+        ],
+    };
 
     return (
         <ScreenWrapper>
             <View style={styles.container}>
                 <View style={styles.card}>
-                    <Text style={styles.greeting}>Olá, Joana! :)</Text>
-                    <Text style={styles.date}>Quinta-feira, 08/09/2022</Text>
+                    <Text style={styles.greeting}>Olá, {user?.displayName || "usuário"}! :)</Text>
+                    <Text style={styles.date}>{formattedDate}</Text>
+
                     <View style={styles.balanceContainer}>
                         <View style={styles.balanceHeader}>
                             <Text style={styles.balanceLabel}>Saldo</Text>
@@ -79,7 +90,11 @@ export default function Home() {
                         </Text>
                     </View>
                 </View>
-                <StatementCard transactions={userData.transactions} title="Extrato" />
+
+                <StatementCard
+                    transactions={userData.transactions}
+                    title="Extrato"
+                />
             </View>
         </ScreenWrapper>
     );
@@ -100,13 +115,14 @@ const styles = StyleSheet.create({
     greeting: {
         color: "#fff",
         fontSize: 25,
-        fontWeight: 500,
+        fontWeight: "500",
     },
     date: {
         color: "#fff",
         fontSize: 13,
-        fontWeight: 300,
+        fontWeight: "300",
         paddingBottom: 15,
+        textTransform: "capitalize",
     },
     balanceContainer: {
         gap: 10,

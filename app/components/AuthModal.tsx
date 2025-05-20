@@ -8,8 +8,10 @@ import {
     TouchableOpacity,
     Image,
     Platform,
+    ActivityIndicator,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useAuth } from "@/app/context/auth-context";
 
 interface Props {
     visible: boolean;
@@ -24,6 +26,7 @@ export default function AuthModal({
     mode,
     onSuccess,
 }: Props) {
+    const { login, signUp } = useAuth();
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -32,6 +35,7 @@ export default function AuthModal({
     const [focusedInput, setFocusedInput] = useState<
         "name" | "email" | "password" | null
     >(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         if (visible) {
@@ -40,6 +44,7 @@ export default function AuthModal({
             setPassword("");
             setAccepted(false);
             setError("");
+            setIsLoading(false);
         }
     }, [visible]);
 
@@ -52,25 +57,48 @@ export default function AuthModal({
         return true;
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         setError("");
+        setIsLoading(true);
 
-        if (mode === "login") {
-            if (email === "evelyn@gmail.com" && password === "a") {
-                onSuccess?.();
-                onClose();
+        try {
+            if (mode === "login") {
+                await login(email, password);
             } else {
-                setError(
-                    "Email ou senha incorreto. Por favor, revise os dados e tente novamente."
-                );
+                if (!name || !password || !accepted) {
+                    setError("Preencha todos os campos e aceite os termos.");
+                    setIsLoading(false);
+                    return;
+                }
+                await signUp(email, password, name);
             }
-        } else {
-            if (!name || !password || !accepted) {
-                setError("Preencha todos os campos e aceite os termos.");
-                return;
-            }
+
             onSuccess?.();
             onClose();
+        } catch (err: any) {
+            console.error(err);
+            switch (err.code) {
+                case "auth/user-not-found":
+                    setError("Email ou senha incorreto. Por favor, revise os dados e tente novamente.");
+                    break;
+                case "auth/wrong-password":
+                    setError("Email ou senha incorreto. Por favor, revise os dados e tente novamente.");
+                    break;
+                case "auth/email-already-in-use":
+                    setError("Este email já está cadastrado.");
+                    break;
+                case "auth/invalid-email":
+                    setError("Email inválido.");
+                    break;
+                case "auth/weak-password":
+                    setError("A senha deve ter pelo menos 6 caracteres.");
+                    break;
+                default:
+                    setError("Erro ao autenticar. Tente novamente.");
+                    break;
+            }
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -154,6 +182,8 @@ export default function AuthModal({
                             onBlur={() => setFocusedInput(null)}
                         />
 
+                        {!!error && <Text style={styles.errorText}>{error}</Text>}
+
                         {mode === "signup" && (
                             <TouchableOpacity
                                 style={styles.checkboxRow}
@@ -166,7 +196,7 @@ export default function AuthModal({
                                             : "checkbox-blank-outline"
                                     }
                                     size={20}
-                                    color="#004D61"
+                                    color="#47A138"
                                 />
                                 <Text style={styles.checkboxText}>
                                     Li e estou ciente quanto às condições de
@@ -176,22 +206,26 @@ export default function AuthModal({
                         )}
                     </View>
 
-
-                    {!!error && <Text style={styles.errorText}>{error}</Text>}
                     {mode === "login" && (
-                        <Text style={styles.forgot}>Esqueci a senha!</Text>
+                        <Text style={styles.forgot}>Esqueci a senha</Text>
                     )}
+
                     <TouchableOpacity
                         style={[
                             styles.button,
-                            !isFormValid() && styles.buttonDisabled,
+                            (!isFormValid() || isLoading) &&
+                                styles.buttonDisabled,
                         ]}
                         onPress={handleSubmit}
-                        disabled={!isFormValid()}
+                        disabled={!isFormValid() || isLoading}
                     >
-                        <Text style={styles.buttonText}>
-                            {mode === "signup" ? "CRIAR CONTA" : "ACESSAR"}
-                        </Text>
+                        {isLoading ? (
+                            <ActivityIndicator color="#fff" />
+                        ) : (
+                            <Text style={styles.buttonText}>
+                                {mode === "signup" ? "CRIAR CONTA" : "ACESSAR"}
+                            </Text>
+                        )}
                     </TouchableOpacity>
                 </View>
             </View>
@@ -238,7 +272,7 @@ const styles = StyleSheet.create({
     },
     input: {
         borderWidth: 1,
-        borderColor: "#004D61",
+        borderColor: "#DEE9EA",
         borderRadius: 8,
         paddingHorizontal: 12,
         paddingVertical: Platform.OS === "ios" ? 14 : 10,
@@ -265,8 +299,8 @@ const styles = StyleSheet.create({
     errorText: {
         color: "#BF1313",
         fontSize: 14,
-        fontWeight: 500,
-        marginTop: -15
+        fontWeight: "500",
+        marginTop: -15,
     },
     button: {
         backgroundColor: "#FF5031",
@@ -284,8 +318,8 @@ const styles = StyleSheet.create({
     forgot: {
         color: "#47A138",
         fontSize: 16,
-        fontWeight: 'bold',
-        textAlign: 'right',
+        fontWeight: "bold",
+        textAlign: "right",
         marginBottom: 8,
     },
 });

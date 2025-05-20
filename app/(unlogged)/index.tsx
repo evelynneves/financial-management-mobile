@@ -14,16 +14,8 @@ import { useState } from "react";
 import AuthModal from "../components/AuthModal";
 
 export default function Index() {
-    const { login } = useAuth();
-    const router = useRouter();
-
     const [showSignup, setShowSignup] = useState(false);
     const [showLogin, setShowLogin] = useState(false);
-
-    const handleLogin = () => {
-        login();
-        router.replace("/home");
-    };
 
     return (
         <LinearGradient colors={["#004D61", "#ffffff"]} style={{ flex: 1 }}>
@@ -134,18 +126,15 @@ export default function Index() {
                 </View>
             </ScrollView>
 
-            {/* Modais */}
             <AuthModal
                 visible={showSignup}
                 onClose={() => setShowSignup(false)}
                 mode="signup"
-                onSuccess={handleLogin}
             />
             <AuthModal
                 visible={showLogin}
                 onClose={() => setShowLogin(false)}
                 mode="login"
-                onSuccess={handleLogin}
             />
         </LinearGradient>
     );
