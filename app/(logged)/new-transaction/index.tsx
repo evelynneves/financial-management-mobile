@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
     View,
     Text,
@@ -19,7 +19,7 @@ import {
     serverTimestamp,
 } from "firebase/firestore";
 import { auth } from "@/firebase/config";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import { useAuth } from "@/app/context/auth-context";
 
 const transactionTypes = [
@@ -33,10 +33,7 @@ const investmentOptions = [
     { label: "Bolsa de Valores", value: "Bolsa de Valores" },
     { label: "Fundos de investimento", value: "Fundos de investimento" },
     { label: "Previdência Privada Fixa", value: "Previdência Privada Fixa" },
-    {
-        label: "Previdência Privada Variável",
-        value: "Previdência Privada Variável",
-    },
+    { label: "Previdência Privada Variável", value: "Previdência Privada Variável" },
     { label: "Tesouro Direto", value: "Tesouro Direto" },
 ];
 
@@ -46,86 +43,94 @@ const NewTransaction = () => {
     const [date, setDate] = useState(new Date());
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [amount, setAmount] = useState("");
-    const { refreshUserData } = useAuth();
-
+    const [availableAmount, setAvailableAmount] = useState(0);
+    const { refreshUserData, userData } = useAuth();
     const db = getFirestore();
+
+    const handleInvestmentTypeChange = (value: string) => {
+        setInvestmentType(value);
+        const data = userData?.investments;
+        if (!data) return;
+
+        let available = 0;
+        switch (value) {
+            case "Fundos de investimento":
+                available = parseCurrency(data.variableIncome.investmentFunds);
+                break;
+            case "Tesouro Direto":
+                available = parseCurrency(data.fixedIncome.governmentBonds);
+                break;
+            case "Previdência Privada Fixa":
+                available = parseCurrency(data.fixedIncome.privatePensionFixed);
+                break;
+            case "Previdência Privada Variável":
+                available = parseCurrency(data.variableIncome.privatePensionVariable);
+                break;
+            case "Bolsa de Valores":
+                available = parseCurrency(data.variableIncome.stockMarket);
+                break;
+        }
+        setAvailableAmount(available);
+    };
+
+    const handleAmountChange = (value: string) => {
+        let onlyNumbers = value.replace(/\D/g, "");
+        if (!onlyNumbers) {
+            setAmount("");
+            return;
+        }
+        const cents = parseInt(onlyNumbers);
+        const formatted = `R$ ${(cents / 100).toLocaleString("pt-BR", {
+            minimumFractionDigits: 2,
+        })}`;
+        setAmount(formatted);
+    };
+
+    const isFormValid = (): boolean => {
+        const parsedAmount = parseCurrency(amount);
+        const isBasicValid = !!transactionType && !!date && parsedAmount > 0;
+        const needsInvestmentType = transactionType === "investimento" || transactionType === "resgate";
+        const validInvestmentType = !needsInvestmentType || !!investmentType;
+        const validResgate = transactionType !== "resgate" || parsedAmount <= availableAmount;
+        return isBasicValid && validInvestmentType && validResgate;
+    };
 
     const handleSubmit = async () => {
         try {
             const uid = auth.currentUser?.uid;
-            console.log("uid", uid);
-            console.log("amount", amount)
             if (!uid || !amount) return;
 
             const monthNames = [
-                "Janeiro",
-                "Fevereiro",
-                "Março",
-                "Abril",
-                "Maio",
-                "Junho",
-                "Julho",
-                "Agosto",
-                "Setembro",
-                "Outubro",
-                "Novembro",
-                "Dezembro",
+                "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+                "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
             ];
-
             const month = monthNames[date.getMonth()];
             const formattedDate = date.toISOString().split("T")[0];
-
             const numericAmount = parseCurrency(amount);
-            const isNegative =
-                transactionType !== "deposito" && transactionType !== "resgate";
+            const isNegative = transactionType !== "deposito" && transactionType !== "resgate";
 
             const newTransaction = {
                 month,
                 date: formattedDate,
-                type:
-                    transactionType === "deposito"
-                        ? "Depósito"
-                        : transactionType === "transferencia"
-                        ? "Transferência"
-                        : transactionType === "investimento"
-                        ? "Investimento"
-                        : "Resgate",
+                type: transactionType === "deposito" ? "Depósito"
+                    : transactionType === "transferencia" ? "Transferência"
+                    : transactionType === "investimento" ? "Investimento"
+                    : "Resgate",
                 amount: formatCurrency(numericAmount),
                 isNegative,
-                ...((transactionType === "investimento" ||
-                    transactionType === "resgate") && {
-                    investmentType,
-                }),
+                ...((transactionType === "investimento" || transactionType === "resgate") && { investmentType }),
                 attachmentFileId: null,
                 createdAt: serverTimestamp(),
             };
-            console.log("newTransactoin", newTransaction);
-            await addDoc(
-                collection(db, "users", uid, "transactions"),
-                newTransaction
-            );
 
-            if (
-                newTransaction.type === "Investimento" ||
-                newTransaction.type === "Resgate"
-            ) {
-                const investmentsRef = doc(
-                    db,
-                    "users",
-                    uid,
-                    "investments",
-                    "summary"
-                );
+            await addDoc(collection(db, "users", uid, "transactions"), newTransaction);
+
+            if (newTransaction.type === "Investimento" || newTransaction.type === "Resgate") {
+                const investmentsRef = doc(db, "users", uid, "investments", "summary");
                 const snapshot = await getDoc(investmentsRef);
-                const data = snapshot.exists()
-                    ? parseInvestmentData(snapshot.data())
-                    : getEmptyInvestments();
+                const data = snapshot.exists() ? parseInvestmentData(snapshot.data()) : getEmptyInvestments();
 
-                const delta =
-                    newTransaction.type === "Resgate"
-                        ? -numericAmount
-                        : numericAmount;
-
+                const delta = newTransaction.type === "Resgate" ? -numericAmount : numericAmount;
                 switch (investmentType) {
                     case "Fundos de investimento":
                         data.variableIncome.investmentFunds += delta;
@@ -143,19 +148,13 @@ const NewTransaction = () => {
                         data.variableIncome.stockMarket += delta;
                         break;
                 }
-
-                data.fixedIncome.total =
-                    data.fixedIncome.privatePensionFixed +
-                    data.fixedIncome.governmentBonds;
-                data.variableIncome.total =
-                    data.variableIncome.investmentFunds +
-                    data.variableIncome.privatePensionVariable +
-                    data.variableIncome.stockMarket;
-                data.totalAmount =
-                    data.fixedIncome.total + data.variableIncome.total;
+                data.fixedIncome.total = data.fixedIncome.privatePensionFixed + data.fixedIncome.governmentBonds;
+                data.variableIncome.total = data.variableIncome.investmentFunds + data.variableIncome.privatePensionVariable + data.variableIncome.stockMarket;
+                data.totalAmount = data.fixedIncome.total + data.variableIncome.total;
 
                 await setDoc(investmentsRef, toCurrencyData(data));
             }
+
             await refreshUserData();
             resetForm();
             router.replace("/home");
@@ -172,30 +171,17 @@ const NewTransaction = () => {
     };
 
     const parseCurrency = (value: string): number => {
-        return (
-            parseFloat(value.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0
-        );
+        return parseFloat(value.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0;
     };
 
     const formatCurrency = (value: number): string => {
-        return `R$ ${value.toLocaleString("pt-BR", {
-            minimumFractionDigits: 2,
-        })}`;
+        return `R$ ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
     };
 
     const getEmptyInvestments = () => ({
         totalAmount: 0,
-        fixedIncome: {
-            total: 0,
-            governmentBonds: 0,
-            privatePensionFixed: 0,
-        },
-        variableIncome: {
-            total: 0,
-            investmentFunds: 0,
-            privatePensionVariable: 0,
-            stockMarket: 0,
-        },
+        fixedIncome: { total: 0, governmentBonds: 0, privatePensionFixed: 0 },
+        variableIncome: { total: 0, investmentFunds: 0, privatePensionVariable: 0, stockMarket: 0 },
     });
 
     const parseInvestmentData = (data: any) => ({
@@ -203,16 +189,12 @@ const NewTransaction = () => {
         fixedIncome: {
             total: parseCurrency(data.fixedIncome.total),
             governmentBonds: parseCurrency(data.fixedIncome.governmentBonds),
-            privatePensionFixed: parseCurrency(
-                data.fixedIncome.privatePensionFixed
-            ),
+            privatePensionFixed: parseCurrency(data.fixedIncome.privatePensionFixed),
         },
         variableIncome: {
             total: parseCurrency(data.variableIncome.total),
             investmentFunds: parseCurrency(data.variableIncome.investmentFunds),
-            privatePensionVariable: parseCurrency(
-                data.variableIncome.privatePensionVariable
-            ),
+            privatePensionVariable: parseCurrency(data.variableIncome.privatePensionVariable),
             stockMarket: parseCurrency(data.variableIncome.stockMarket),
         },
     });
@@ -222,21 +204,23 @@ const NewTransaction = () => {
         fixedIncome: {
             total: formatCurrency(data.fixedIncome.total),
             governmentBonds: formatCurrency(data.fixedIncome.governmentBonds),
-            privatePensionFixed: formatCurrency(
-                data.fixedIncome.privatePensionFixed
-            ),
+            privatePensionFixed: formatCurrency(data.fixedIncome.privatePensionFixed),
         },
         variableIncome: {
             total: formatCurrency(data.variableIncome.total),
-            investmentFunds: formatCurrency(
-                data.variableIncome.investmentFunds
-            ),
-            privatePensionVariable: formatCurrency(
-                data.variableIncome.privatePensionVariable
-            ),
+            investmentFunds: formatCurrency(data.variableIncome.investmentFunds),
+            privatePensionVariable: formatCurrency(data.variableIncome.privatePensionVariable),
             stockMarket: formatCurrency(data.variableIncome.stockMarket),
         },
     });
+
+    useFocusEffect(
+        useCallback(() => {
+            return () => {
+                resetForm();
+            };
+        }, [])
+    );
 
     return (
         <ScreenWrapper>
@@ -251,12 +235,16 @@ const NewTransaction = () => {
                     style={pickerSelectStyles}
                 />
 
-                {(transactionType === "investimento" ||
-                    transactionType === "resgate") && (
+                {(transactionType === "investimento" || transactionType === "resgate") && (
                     <>
-                        <Text style={styles.label}>Tipo de Investimento</Text>
+                        <Text style={styles.label}>
+                            {transactionType === "resgate"
+                                ? "De qual investimento deseja resgatar?"
+                                : "Tipo de Investimento"}
+                        </Text>
                         <RNPickerSelect
-                            onValueChange={setInvestmentType}
+                            placeholder={{ label: "Selecione um tipo", value: null }}
+                            onValueChange={handleInvestmentTypeChange}
                             value={investmentType}
                             items={investmentOptions}
                             style={pickerSelectStyles}
@@ -265,10 +253,7 @@ const NewTransaction = () => {
                 )}
 
                 <Text style={styles.label}>Data</Text>
-                <TouchableOpacity
-                    onPress={() => setShowDatePicker(true)}
-                    style={styles.dateInput}
-                >
+                <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.dateInput}>
                     <Text>{date.toLocaleDateString("pt-BR")}</Text>
                 </TouchableOpacity>
                 {showDatePicker && (
@@ -286,11 +271,28 @@ const NewTransaction = () => {
                 <Text style={styles.label}>Valor</Text>
                 <TextInput
                     value={amount}
-                    onChangeText={setAmount}
+                    onChangeText={handleAmountChange}
                     keyboardType="numeric"
                     placeholder="R$ 0,00"
-                    style={styles.input}
+                    style={[
+                        styles.input,
+                        transactionType === "resgate" && parseCurrency(amount) > availableAmount && { borderColor: "red" },
+                    ]}
                 />
+
+                {transactionType === "resgate" && investmentType && (
+                    <>
+                        {parseCurrency(amount) > availableAmount ? (
+                            <Text style={styles.errorText}>
+                                O valor não pode ser maior que o disponível para resgate
+                            </Text>
+                        ) : (
+                            <Text style={styles.availableText}>
+                                Valor disponível para resgate: {formatCurrency(availableAmount)}
+                            </Text>
+                        )}
+                    </>
+                )}
 
                 <Text style={styles.label}>Anexar comprovante (opcional)</Text>
                 <TouchableOpacity style={styles.uploadButton}>
@@ -298,8 +300,9 @@ const NewTransaction = () => {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                    style={styles.submitButton}
+                    style={[styles.submitButton, !isFormValid() && { opacity: 0.5 }]}
                     onPress={handleSubmit}
+                    disabled={!isFormValid()}
                 >
                     <Text style={styles.submitText}>Concluir transação</Text>
                 </TouchableOpacity>
@@ -337,7 +340,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         backgroundColor: "#fff",
         fontSize: 16,
-        marginBottom: 20,
+        marginBottom: 10,
     },
     dateInput: {
         borderWidth: 1,
@@ -371,7 +374,21 @@ const styles = StyleSheet.create({
     submitText: {
         color: "#fff",
         fontSize: 16,
-        fontWeight: "400",
+        fontWeight: "500",
+    },
+    errorText: {
+        color: "#e57471",
+        fontSize: 14,
+        fontWeight: "bold",
+        marginTop: -5,
+        marginBottom: 10,
+    },
+    availableText: {
+        color: "#47a138",
+        fontSize: 14,
+        fontWeight: "bold",
+        marginTop: -5,
+        marginBottom: 10,
     },
 });
 
@@ -392,7 +409,7 @@ const pickerSelectStyles = {
         paddingHorizontal: 10,
         paddingVertical: 8,
         borderWidth: 1,
-        borderColor: "##004D61",
+        borderColor: "#004D61",
         borderRadius: 8,
         backgroundColor: "#fff",
         color: "#004D61",
