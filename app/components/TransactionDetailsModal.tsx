@@ -21,8 +21,7 @@ export default function TransactionDetailsModal({
     transaction,
     onClose,
 }: DetailsModalProps) {
-    const { user, userData } = useAuth();
-    console.log("userData", userData)
+    const { user } = useAuth();
     
     if (!transaction) return null;
 
