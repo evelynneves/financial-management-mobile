@@ -4,6 +4,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
 import ConfirmEditModal from "./ConfirmEditModal";
 import { useAuth } from "@/app/context/auth-context";
+import TransactionDetailsModal from "./TransactionDetailsModal";
 
 export type TransactionType =
     | "Depósito"
@@ -32,8 +33,8 @@ export default function StatementCard({
     const { refreshUserData } = useAuth();
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
-    const [selectedTransaction, setSelectedTransaction] =
-        useState<Transaction | null>(null);
+    const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+    const [showDetailsModal, setShowDetailsModal] = useState(false);
 
     const formatCurrency = (value: number, isNegative?: boolean): string => {
         const prefix = isNegative ? "- R$" : "R$";
@@ -61,7 +62,12 @@ export default function StatementCard({
                         <View style={styles.row}>
                             <Text style={styles.month}>{item.month}</Text>
                             <View style={styles.iconGroup}>
-                                <TouchableOpacity>
+                                <TouchableOpacity
+                                    onPress={() => {
+                                        setSelectedTransaction(item);
+                                        setShowDetailsModal(true);
+                                    }}
+                                >
                                     <MaterialCommunityIcons
                                         name="eye"
                                         size={20}
@@ -131,17 +137,12 @@ export default function StatementCard({
                 ))
             )}
 
-            <ConfirmDeleteModal
-                visible={showConfirmModal}
+            <TransactionDetailsModal
+                visible={showDetailsModal}
                 transaction={selectedTransaction}
                 onClose={() => {
-                    setShowConfirmModal(false);
+                    setShowDetailsModal(false);
                     setSelectedTransaction(null);
-                }}
-                onFinish={() => {
-                    setShowConfirmModal(false);
-                    setSelectedTransaction(null);
-                    refreshUserData();
                 }}
             />
 
@@ -154,6 +155,20 @@ export default function StatementCard({
                 }}
                 onFinish={() => {
                     setShowEditModal(false);
+                    setSelectedTransaction(null);
+                    refreshUserData();
+                }}
+            />
+            
+            <ConfirmDeleteModal
+                visible={showConfirmModal}
+                transaction={selectedTransaction}
+                onClose={() => {
+                    setShowConfirmModal(false);
+                    setSelectedTransaction(null);
+                }}
+                onFinish={() => {
+                    setShowConfirmModal(false);
                     setSelectedTransaction(null);
                     refreshUserData();
                 }}
