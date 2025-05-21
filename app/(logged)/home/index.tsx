@@ -19,6 +19,23 @@ export default function Home() {
         year: "numeric",
     }).format(today);
 
+    const calculateBalance = (): string => {
+        if (!userData?.transactions) return "R$ 0,00";
+
+        const total = userData.transactions.reduce((acc, transaction) => {
+            const raw = transaction.amount.toString();
+            const cleaned = raw.replace("R$ ", "").replace(/\./g, "").replace(",", ".");
+            const amount = parseFloat(cleaned);
+
+            return transaction.isNegative ? acc - amount : acc + amount;
+        }, 0);
+
+        return total.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+        });
+    };
+
     return (
         <ScreenWrapper>
             <View style={styles.container}>
@@ -44,11 +61,7 @@ export default function Home() {
 
                         <Text style={styles.accountType}>Conta Corrente</Text>
                         <Text style={styles.amount}>
-                            {isVisible
-                                ? userData?.investments
-                                    ? userData?.investments?.totalAmount
-                                    : "R$ 0,00"
-                                : "••••••••"}
+                            {isVisible ? calculateBalance() : "••••••••"}
                         </Text>
                     </View>
                 </View>
