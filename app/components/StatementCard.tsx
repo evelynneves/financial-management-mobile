@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Linking, Platform } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
 import ConfirmEditModal from "./ConfirmEditModal";
@@ -43,6 +43,14 @@ export default function StatementCard({
         })}`;
     };
 
+    const handleOpenAttachment = async (url: string) => {
+        try {
+            await Linking.openURL(url);
+        } catch (error) {
+            console.error("Erro ao abrir o comprovante:", error);
+        }
+    };
+
     return (
         <View style={styles.card}>
             {title && (
@@ -62,6 +70,17 @@ export default function StatementCard({
                         <View style={styles.row}>
                             <Text style={styles.month}>{item.month}</Text>
                             <View style={styles.iconGroup}>
+                                {item.attachmentFileId && (
+                                    <TouchableOpacity
+                                        onPress={() => handleOpenAttachment(item.attachmentFileId!)}
+                                    >
+                                        <MaterialCommunityIcons
+                                            name="paperclip"
+                                            size={20}
+                                            color="#004D61"
+                                        />
+                                    </TouchableOpacity>
+                                )}
                                 <TouchableOpacity
                                     onPress={() => {
                                         setSelectedTransaction(item);

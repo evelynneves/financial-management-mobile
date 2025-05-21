@@ -18,6 +18,8 @@ import {
     setDoc,
     serverTimestamp,
 } from "firebase/firestore";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import * as DocumentPicker from "expo-document-picker";
 import { auth } from "@/firebase/config";
 import { router, useFocusEffect } from "expo-router";
 import { useAuth } from "@/app/context/auth-context";
@@ -44,8 +46,10 @@ const NewTransaction = () => {
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [amount, setAmount] = useState("");
     const [availableAmount, setAvailableAmount] = useState(0);
+    const [pdf, setPdf] = useState<DocumentPicker.DocumentPickerAsset | null>(null);
     const { refreshUserData, userData } = useAuth();
     const db = getFirestore();
+    const storage = getStorage();
 
     const handleInvestmentTypeChange = (value: string) => {
         setInvestmentType(value);
@@ -95,10 +99,35 @@ const NewTransaction = () => {
         return isBasicValid && validInvestmentType && validResgate;
     };
 
+    const handlePickPDF = async () => {
+        try {
+            const result = await DocumentPicker.getDocumentAsync({
+                type: "application/pdf",
+                copyToCacheDirectory: true,
+            });
+
+            if (result.assets && result.assets[0]) {
+                setPdf(result.assets[0]);
+            }
+        } catch (error) {
+            console.error("Erro ao selecionar o arquivo PDF:", error);
+        }
+    };
+
     const handleSubmit = async () => {
         try {
             const uid = auth.currentUser?.uid;
             if (!uid || !amount) return;
+
+            let attachmentFileId: string | null = null;
+
+            if (pdf) {
+                const response = await fetch(pdf.uri);
+                const blob = await response.blob();
+                const fileRef = ref(storage, `receipts/${uid}/${Date.now()}_${pdf.name}`);
+                await uploadBytes(fileRef, blob);
+                attachmentFileId = await getDownloadURL(fileRef);
+            }
 
             const monthNames = [
                 "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
@@ -119,7 +148,7 @@ const NewTransaction = () => {
                 amount: numericAmount,
                 isNegative,
                 ...((transactionType === "investimento" || transactionType === "resgate") && { investmentType }),
-                attachmentFileId: null,
+                attachmentFileId,
                 createdAt: serverTimestamp(),
             };
 
@@ -168,6 +197,7 @@ const NewTransaction = () => {
         setInvestmentType("");
         setAmount("");
         setDate(new Date());
+        setPdf(null);
     };
 
     const parseCurrency = (value: string): number => {
@@ -296,8 +326,11 @@ const NewTransaction = () => {
                 )}
 
                 <Text style={styles.label}>Anexar comprovante (opcional)</Text>
-                <TouchableOpacity style={styles.uploadButton}>
-                    <Text style={styles.uploadText}>Escolher arquivo</Text>
+                <TouchableOpacity style={styles.uploadButton} onPress={handlePickPDF}>
+                    <Text style={styles.uploadText}
+                        numberOfLines={1}>
+                        {pdf ? pdf.name : "Escolher arquivo"}
+                    </Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -364,6 +397,9 @@ const styles = StyleSheet.create({
         color: "#004D61",
         fontSize: 16,
         fontWeight: "500",
+        maxWidth: "100%",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
     },
     submitButton: {
         backgroundColor: "#004D61",
