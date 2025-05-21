@@ -187,3 +187,5 @@ export async function getUserData(uid: string): Promise<UserData> {
 
     return { transactions, investments };
 }
+
+export default AuthContext;

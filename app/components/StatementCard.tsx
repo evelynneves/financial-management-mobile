@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Linking, Platform } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Linking} from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
 import ConfirmEditModal from "./ConfirmEditModal";
@@ -26,9 +26,11 @@ export interface Transaction {
 export default function StatementCard({
     transactions,
     title,
+    isFiltered = false,
 }: {
     transactions: Transaction[];
     title?: string;
+    isFiltered?: boolean,
 }) {
     const { refreshUserData } = useAuth();
     const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -60,10 +62,11 @@ export default function StatementCard({
             )}
 
             {transactions.length === 0 ? (
-                <Text style={styles.emptyMessage}>
-                    🤖 Nenhuma transação por aqui ainda...{"\n"}
-                    Vamos movimentar sua conta? 💸
-                </Text>
+                    <Text style={styles.emptyMessage}>
+                        {isFiltered
+                            ? "😕 Nenhum resultado encontrado com os filtros aplicados."
+                            : "🤖 Nenhuma transação por aqui ainda...\nVamos movimentar sua conta? 💸"}
+                    </Text>
             ) : (
                 transactions.map((item, index) => (
                     <View key={index} style={styles.transaction}>

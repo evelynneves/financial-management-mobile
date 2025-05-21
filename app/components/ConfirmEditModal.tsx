@@ -218,14 +218,14 @@ export default function ConfirmEditModal({
     };
 
     return (
-        <Modal visible={visible} transparent animationType="fade">
+        <Modal visible={visible && transaction !== null} transparent animationType="fade">
             <View style={styles.overlay}>
                 <View style={styles.modalContainer}>
                     <Text style={styles.title}>Editar Transação</Text>
 
                     <Text style={styles.label}>Tipo de Transação</Text>
                     <TextInput
-                        value={transaction?.type}
+                        value={transaction?.type ?? ""}
                         editable={false}
                         style={[styles.input, { backgroundColor: "#eee", color: "#888" }]}
                     />
@@ -262,7 +262,7 @@ export default function ConfirmEditModal({
 
                     <Text style={styles.label}>Valor</Text>
                     <TextInput
-                        value={amount}
+                        value={amount ?? ""}
                         onChangeText={handleAmountChange}
                         keyboardType="numeric"
                         style={[

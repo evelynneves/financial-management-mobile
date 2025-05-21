@@ -29,6 +29,7 @@ export default function Transactions() {
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [showFilterModal, setShowFilterModal] = useState(false);
+    const isFiltered = selectedTypes.length > 0 || searchTerm.length > 0 || selectedDate !== null;
 
     const toggleType = (type: string) => {
         setSelectedTypes((prev) =>
@@ -45,9 +46,8 @@ export default function Transactions() {
                 : true;
             const matchesSearch =
                 searchTerm.length === 0 ||
-                t.amount
-                    .replace(".", "")
-                    .replace(",", "")
+                String(t.amount)
+                    .replace(/\D/g, "")
                     .includes(searchTerm.replace(/\D/g, ""));
 
             const matchesDate = selectedDate
@@ -104,7 +104,7 @@ export default function Transactions() {
 
                 {/* Extrato */}
                 <ScrollView style={{ marginTop: 15 }}>
-                    <StatementCard transactions={filteredTransactions} />
+                    <StatementCard transactions={filteredTransactions} isFiltered={isFiltered} />
                 </ScrollView>
 
                 {/* Modal de tipos */}

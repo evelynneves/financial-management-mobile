@@ -32,14 +32,6 @@ export default function Layout() {
                 }}
             >
                 <Drawer.Screen
-                    name="index"
-                    options={{
-                        drawerItemStyle: { display: "none" },
-                        title: "",
-                        headerLeft: () => null,
-                    }}
-                />
-                <Drawer.Screen
                     name="home/index"
                     options={{
                         drawerLabel: "Início",
