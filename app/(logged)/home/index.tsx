@@ -41,7 +41,7 @@ export default function Home() {
             <View style={styles.container}>
                 <View style={styles.card}>
                     <Text style={styles.greeting}>
-                        Olá, {user?.displayName || "usuário"}! :)
+                        Olá, {(user?.displayName?.split(" ")[0] || "usuário")}! :)
                     </Text>
                     <Text style={styles.date}>{formattedDate}</Text>
 

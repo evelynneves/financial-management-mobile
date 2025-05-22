@@ -39,7 +39,8 @@ export default function Transactions() {
     };
 
     const filteredTransactions = useMemo(() => {
-        return userData?.transactions.filter((t: any) => {
+        if (!userData?.transactions) return [];
+        return userData.transactions.filter((t: any) => {
             const matchesType = selectedTypes.length
                 ? selectedTypes.includes(t.type)
                 : true;
@@ -60,97 +61,94 @@ export default function Transactions() {
     return (
         <ScreenWrapper>
             <View style={styles.container}>
-                <Text style={styles.title}>Lista de Transações</Text>
+                <View>
+                    <Text style={styles.title}>Lista de Transações</Text>
 
-                {/* Filtros */}
-                <View style={styles.filters}>
-                    <Pressable
-                        style={styles.filterButton}
-                        onPress={() => setShowFilterModal(true)}
-                    >
-                        <Text style={styles.filterText}>Filtrar por tipo</Text>
-                        <MaterialCommunityIcons
-                            name="chevron-down"
-                            size={16}
-                            color="#004D61"
+                    <View style={styles.filters}>
+                        <Pressable
+                            style={styles.filterButton}
+                            onPress={() => setShowFilterModal(true)}
+                        >
+                            <Text style={styles.filterText}>Filtrar por tipo</Text>
+                            <MaterialCommunityIcons
+                                name="chevron-down"
+                                size={16}
+                                color="#004D61"
+                            />
+                        </Pressable>
+
+                        <Pressable
+                            style={styles.dateInput}
+                            onPress={() => setShowDatePicker(true)}
+                        >
+                            <Text style={styles.filterText}>
+                                {selectedDate
+                                    ? selectedDate.toLocaleDateString("pt-BR")
+                                    : "dd/mm/aaaa"}
+                            </Text>
+                            <MaterialCommunityIcons
+                                name="calendar"
+                                size={16}
+                                color="#004D61"
+                            />
+                        </Pressable>
+
+                        <TextInput
+                            placeholder="Buscar"
+                            placeholderTextColor="#004D61"
+                            style={styles.searchInput}
+                            value={searchTerm}
+                            onChangeText={setSearchTerm}
                         />
-                    </Pressable>
-
-                    <Pressable
-                        style={styles.dateInput}
-                        onPress={() => setShowDatePicker(true)}
+                    </View>
+                    <Modal
+                        transparent
+                        animationType="fade"
+                        visible={showFilterModal}
                     >
-                        <Text style={styles.filterText}>
-                            {selectedDate
-                                ? selectedDate.toLocaleDateString("pt-BR")
-                                : "dd/mm/aaaa"}
-                        </Text>
-                        <MaterialCommunityIcons
-                            name="calendar"
-                            size={16}
-                            color="#004D61"
-                        />
-                    </Pressable>
+                        <Pressable
+                            style={styles.modalBackground}
+                            onPress={() => setShowFilterModal(false)}
+                        >
+                            <View style={styles.modalContent}>
+                                {transactionTypes.map((type) => (
+                                    <TouchableOpacity
+                                        key={type}
+                                        onPress={() => toggleType(type)}
+                                    >
+                                        <View style={styles.checkboxRow}>
+                                            <MaterialCommunityIcons
+                                                name={
+                                                    selectedTypes.includes(type)
+                                                        ? "checkbox-marked"
+                                                        : "checkbox-blank-outline"
+                                                }
+                                                size={20}
+                                                color="#004D61"
+                                            />
+                                            <Text style={styles.checkboxLabel}>
+                                                {type}
+                                            </Text>
+                                        </View>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+                        </Pressable>
+                    </Modal>
 
-                    <TextInput
-                        placeholder="Buscar"
-                        placeholderTextColor="#004D61"
-                        style={styles.searchInput}
-                        value={searchTerm}
-                        onChangeText={setSearchTerm}
-                    />
+                    {showDatePicker && (
+                        <DateTimePicker
+                            value={selectedDate || new Date()}
+                            mode="date"
+                            display="default"
+                            onChange={(e, date) => {
+                                setShowDatePicker(false);
+                                if (date) setSelectedDate(date);
+                            }}
+                        />
+                    )}
                 </View>
-
-                {/* Extrato */}
-                    <StatementCard transactions={filteredTransactions} isFiltered={isFiltered} />
-                {/* Modal de tipos */}
-                <Modal
-                    transparent
-                    animationType="fade"
-                    visible={showFilterModal}
-                >
-                    <Pressable
-                        style={styles.modalBackground}
-                        onPress={() => setShowFilterModal(false)}
-                    >
-                        <View style={styles.modalContent}>
-                            {transactionTypes.map((type) => (
-                                <TouchableOpacity
-                                    key={type}
-                                    onPress={() => toggleType(type)}
-                                >
-                                    <View style={styles.checkboxRow}>
-                                        <MaterialCommunityIcons
-                                            name={
-                                                selectedTypes.includes(type)
-                                                    ? "checkbox-marked"
-                                                    : "checkbox-blank-outline"
-                                            }
-                                            size={20}
-                                            color="#004D61"
-                                        />
-                                        <Text style={styles.checkboxLabel}>
-                                            {type}
-                                        </Text>
-                                    </View>
-                                </TouchableOpacity>
-                            ))}
-                        </View>
-                    </Pressable>
-                </Modal>
-
-                {/* Date Picker */}
-                {showDatePicker && (
-                    <DateTimePicker
-                        value={selectedDate || new Date()}
-                        mode="date"
-                        display="default"
-                        onChange={(e, date) => {
-                            setShowDatePicker(false);
-                            if (date) setSelectedDate(date);
-                        }}
-                    />
-                )}
+                <StatementCard transactions={filteredTransactions} isFiltered={isFiltered} />
             </View>
         </ScreenWrapper>
     );
@@ -158,10 +156,9 @@ export default function Transactions() {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
         padding: 30,
         borderRadius: 8,
-        backgroundColor: "#CBCBCB",
+        backgroundColor: "#FFF",
     },
     title: {
         fontSize: 20,
@@ -183,7 +180,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 6,
         borderColor: "#004D61",
-        borderRadius: 6,
+        borderRadius: 8,
         minWidth: "30%",
     },
     dateInput: {
@@ -193,7 +190,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 6,
         borderColor: "#004D61",
-        borderRadius: 6,
+        borderRadius: 8,
         minWidth: "30%",
     },
     filterText: {
@@ -203,10 +200,10 @@ const styles = StyleSheet.create({
     searchInput: {
         borderWidth: 1,
         borderColor: "#004D61",
-        borderRadius: 6,
+        borderRadius: 8,
         paddingHorizontal: 10,
-        flex: 1,
         color: "#004D61",
+        width: "100%"
     },
     modalBackground: {
         flex: 1,

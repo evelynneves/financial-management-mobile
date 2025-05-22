@@ -128,10 +128,6 @@ const NewTransaction = () => {
                 const blob = await response.blob();
                 const fileRef = ref(storage, filePath);
 
-                console.log("📄 URI:", pdf.uri);
-                console.log("📦 Blob size:", blob.size);
-                console.log("📦 Blob type:", blob.type);
-
                 await uploadBytes(fileRef, blob);
                 attachmentFileId = filePath;
                 attachmentUrl = await getDownloadURL(fileRef);

@@ -1,7 +1,7 @@
 import { Drawer } from "expo-router/drawer";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useAuth } from "@/context/auth-context";
-import { useRouter, Slot } from "expo-router";
+import { useRouter } from "expo-router";
 import { useEffect } from "react";
 import { ActivityIndicator, View } from "react-native";
 import UserMenu from "@/components/UserMenu";

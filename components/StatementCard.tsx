@@ -202,15 +202,14 @@ export default function StatementCard({
 
 const styles = StyleSheet.create({
     card: {
-        backgroundColor: "#F5F5F5",
+        backgroundColor: "#fff",
         padding: 25,
         borderRadius: 8,
         gap: 15,
     },
     header: {
         flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "center",
+        justifyContent: "center",
     },
     title: {
         fontSize: 25,

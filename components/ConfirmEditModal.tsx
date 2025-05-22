@@ -43,7 +43,7 @@ export default function ConfirmEditModal({
     useEffect(() => {
         if (transaction) {
             setDate(new Date(transaction.date));
-            setAmount(transaction.amount.toString());
+            setAmount(formatCurrency(parseCurrency(transaction.amount)));
 
             if (transaction.type === "Resgate") {
                 const data = userData?.investments;
@@ -166,7 +166,7 @@ export default function ConfirmEditModal({
             const diff = newAmount - originalAmount;
 
             await updateDoc(transactionRef, {
-                amount: formatCurrency(newAmount),
+                amount: newAmount,
                 date: date.toISOString().split("T")[0],
             });
 
