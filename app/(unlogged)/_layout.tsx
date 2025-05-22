@@ -52,7 +52,7 @@ export default function UnloggedLayout() {
 		<Drawer.Screen
 			name="services/index"
 			options={{
-				drawerLabel: "Outros serviços",
+				drawerLabel: "Serviços",
 				title: "",
 			}}
 		/>

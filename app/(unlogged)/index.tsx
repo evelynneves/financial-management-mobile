@@ -19,7 +19,7 @@ export default function Index() {
     return (
         <LinearGradient colors={["#004D61", "#ffffff"]} style={{ flex: 1 }}>
             <ScrollView>
-                <View style={styles.content}>
+                <View style={styles.container}>
                     <Text style={styles.title}>
                         Experimente mais liberdade no controle da sua vida
                         financeira. Crie sua conta com a gente!
@@ -116,9 +116,6 @@ function Feature({ icon, title, description }: FeatureProps) {
 
 const styles = StyleSheet.create({
     container: {
-        alignItems: "center",
-    },
-    content: {
         alignItems: "center",
         justifyContent: "center",
         padding: 30,

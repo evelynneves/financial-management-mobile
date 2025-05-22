@@ -1,21 +1,57 @@
-import { View, Text, StyleSheet } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { View, Text, StyleSheet, Image } from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
 
-export default function Services() {
+export default function About() {
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Services</Text>
-            <Text>Welcome to the services unlogged page!</Text>
-        </View>
+        <LinearGradient colors={["#004D61", "#ffffff"]} style={{ flex: 1 }}>
+            <ScrollView>
+                <View style={styles.container}>
+                    <Text style={styles.title}>Em breve!</Text>
+                    <Image
+                        source={require("@/assets/images/coming_soon.png")}
+                        style={styles.image}
+                        resizeMode="contain"
+                    />
+                    <Text style={styles.subtitle}>
+                        Essa funcionalidade está sendo preparada com carinho.
+                    </Text>
+                    <Text style={styles.note}>Fique ligado para novidades :)</Text>
+                </View>
+            </ScrollView>
+        </LinearGradient>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
-        padding: 16,
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 30,
+        gap: 20,
     },
     title: {
-        fontSize: 24,
+        color: "#000",
+        fontSize: 25,
         fontWeight: "bold",
-        marginBottom: 8,
+        textAlign: "center",
+    },
+    image: {
+        width: "100%",
+        height: 200,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    subtitle: {
+        color: "#000",
+        fontSize: 20,
+        fontWeight: "bold",
+        textAlign: "center",
+    },
+    note: {
+        fontSize: 14,
+        color: "#000",
+        textAlign: "center",
+        marginTop: 10,
     },
 });
