@@ -1,5 +1,5 @@
-import ScreenWrapper from "@/app/components/ScreenWrapper";
-import StatementCard from "@/app/components/StatementCard";
+import ScreenWrapper from "@/components/ScreenWrapper";
+import StatementCard from "@/components/StatementCard";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useMemo, useState } from "react";
 import {
@@ -7,13 +7,12 @@ import {
     Text,
     Pressable,
     TextInput,
-    ScrollView,
     Modal,
     TouchableOpacity,
     StyleSheet,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { useAuth } from "@/app/context/auth-context";
+import { useAuth } from "@/context/auth-context";
 
 const transactionTypes = [
     "Resgate",
@@ -103,10 +102,7 @@ export default function Transactions() {
                 </View>
 
                 {/* Extrato */}
-                <ScrollView style={{ marginTop: 15 }}>
                     <StatementCard transactions={filteredTransactions} isFiltered={isFiltered} />
-                </ScrollView>
-
                 {/* Modal de tipos */}
                 <Modal
                     transparent

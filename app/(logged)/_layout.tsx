@@ -1,8 +1,35 @@
 import { Drawer } from "expo-router/drawer";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import UserMenu from "../components/UserMenu";
+import { useAuth } from "@/context/auth-context";
+import { useRouter, Slot } from "expo-router";
+import { useEffect } from "react";
+import { ActivityIndicator, View } from "react-native";
+import UserMenu from "@/components/UserMenu";
 
-export default function Layout() {
+export default function LoggedLayout() {
+    const { user, loading } = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (!loading && !user) {
+            router.replace("/(unlogged)");
+        }
+    }, [loading, user]);
+
+    if (loading || (!user && !loading)) {
+        return (
+            <View
+                style={{
+                    flex: 1,
+                    justifyContent: "center",
+                    alignItems: "center",
+                }}
+            >
+                <ActivityIndicator size="large" color="#004D61" />
+            </View>
+        );
+    }
+
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
             <Drawer
@@ -12,9 +39,7 @@ export default function Layout() {
                     },
                     headerTintColor: "#FF5031",
                     headerTitle: "",
-                    headerRight: () => (
-                        <UserMenu />
-                    ),
+                    headerRight: () => <UserMenu />,
                     drawerStyle: {
                         backgroundColor: "#E4EDE3",
                         borderTopRightRadius: 0,

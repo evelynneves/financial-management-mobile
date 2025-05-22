@@ -36,7 +36,7 @@ export default function UserMenu() {
         <>
             <TouchableOpacity onPress={() => setVisible(true)}>
                 <Image
-                    source={require("@/assets/images/avatar.svg")}
+                    source={require("@/assets/images/avatar.png")}
                     style={{ width: 40, height: 40, marginRight: 25 }}
                     resizeMode="contain"
                 />

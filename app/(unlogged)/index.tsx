@@ -1,5 +1,3 @@
-import { useRouter } from "expo-router";
-import { useAuth } from "../context/auth-context";
 import {
     View,
     Text,
@@ -11,8 +9,8 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
-import AuthModal from "../components/AuthModal";
-import Footer from "../components/Footer";
+import AuthModal from "../../components/AuthModal";
+import Footer from "../../components/Footer";
 
 export default function Index() {
     const [showSignup, setShowSignup] = useState(false);
@@ -31,7 +29,7 @@ export default function Index() {
                         <Image
                             style={styles.illustration}
                             resizeMode= "contain"
-                            source={require("@/assets/images/illustration_banner.svg")}
+                            source={require("@/assets/images/illustration_banner.png")}
                         />
                     </View>
 
@@ -61,22 +59,22 @@ export default function Index() {
                         </Text>
 
                         <Feature
-                            icon={require("@/assets/images/gift_icon.svg")}
+                            icon={require("@/assets/images/gift_icon.png")}
                             title="Conta e cartão gratuitos"
                             description="Isso mesmo, nossa conta é digital, sem custo fixo e mais que isso: sem tarifa de manutenção."
                         />
                         <Feature
-                            icon={require("@/assets/images/withdraw_icon.svg")}
+                            icon={require("@/assets/images/withdraw_icon.png")}
                             title="Saques sem custo"
                             description="Você pode sacar gratuitamente 4x por mês de qualquer Banco 24h."
                         />
                         <Feature
-                            icon={require("@/assets/images/points_icon.svg")}
+                            icon={require("@/assets/images/points_icon.png")}
                             title="Programa de pontos"
                             description="Você pode acumular pontos com suas compras no crédito sem pagar mensalidade!"
                         />
                         <Feature
-                            icon={require("@/assets/images/devices_icon.svg")}
+                            icon={require("@/assets/images/devices_icon.png")}
                             title="Seguro Dispositivos"
                             description="Seus dispositivos móveis (computador e laptop) protegidos por uma mensalidade simbólica."
                         />

@@ -1,5 +1,11 @@
 import React from "react";
-import { Modal, View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import {
+    Modal,
+    View,
+    Text,
+    StyleSheet,
+    TouchableOpacity,
+} from "react-native";
 import {
     doc,
     getDoc,
@@ -8,8 +14,9 @@ import {
     setDoc,
 } from "firebase/firestore";
 import { auth } from "@/firebase/config";
-import { useAuth } from "@/app/context/auth-context";
+import { useAuth } from "@/context/auth-context";
 import { Transaction } from "./StatementCard";
+import { getStorage, ref, deleteObject } from "firebase/storage";
 
 interface ConfirmDeleteModalProps {
     visible: boolean;
@@ -26,6 +33,7 @@ export default function ConfirmDeleteModal({
 }: ConfirmDeleteModalProps) {
     const { refreshUserData } = useAuth();
     const db = getFirestore();
+    const storage = getStorage();
 
     const handleDelete = async () => {
         const uid = auth.currentUser?.uid;
@@ -33,10 +41,16 @@ export default function ConfirmDeleteModal({
 
         try {
             const transactionRef = doc(db, "users", uid, "transactions", transaction.id);
-
             const amount = transaction.amount;
             const type = transaction.type;
             const investmentType = transaction.investmentType;
+
+            if (transaction.attachmentFileId) {
+                const fileRef = ref(storage, transaction.attachmentFileId);
+                await deleteObject(fileRef).catch((err) => {
+                    console.warn("Falha ao excluir anexo:", err.message);
+                });
+            }
 
             if (type === "Investimento" || type === "Resgate") {
                 const delta = type === "Investimento" ? -amount : amount;
@@ -66,14 +80,12 @@ export default function ConfirmDeleteModal({
                 }
 
                 data.fixedIncome.total =
-                    data.fixedIncome.privatePensionFixed +
-                    data.fixedIncome.governmentBonds;
+                    data.fixedIncome.privatePensionFixed + data.fixedIncome.governmentBonds;
                 data.variableIncome.total =
                     data.variableIncome.investmentFunds +
                     data.variableIncome.privatePensionVariable +
                     data.variableIncome.stockMarket;
-                data.totalAmount =
-                    data.fixedIncome.total + data.variableIncome.total;
+                data.totalAmount = data.fixedIncome.total + data.variableIncome.total;
 
                 await setDoc(investmentsRef, toCurrencyData(data));
             }
@@ -117,7 +129,9 @@ export default function ConfirmDeleteModal({
 
 const formatCurrency = (value: number, isNegative?: boolean): string => {
     const prefix = isNegative ? "- R$" : "R$";
-    return `${prefix} ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
+    return `${prefix} ${value.toLocaleString("pt-BR", {
+        minimumFractionDigits: 2,
+    })}`;
 };
 
 const getEmptyInvestments = () => ({
@@ -136,17 +150,33 @@ const getEmptyInvestments = () => ({
 });
 
 const parseInvestmentData = (data: any) => ({
-    totalAmount: parseFloat(data.totalAmount.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0,
+    totalAmount: parseFloat(
+        data.totalAmount.replace(/[R$\.\s]/g, "").replace(",", ".")
+    ) || 0,
     fixedIncome: {
-        total: parseFloat(data.fixedIncome.total.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0,
-        governmentBonds: parseFloat(data.fixedIncome.governmentBonds.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0,
-        privatePensionFixed: parseFloat(data.fixedIncome.privatePensionFixed.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0,
+        total: parseFloat(
+            data.fixedIncome.total.replace(/[R$\.\s]/g, "").replace(",", ".")
+        ) || 0,
+        governmentBonds: parseFloat(
+            data.fixedIncome.governmentBonds.replace(/[R$\.\s]/g, "").replace(",", ".")
+        ) || 0,
+        privatePensionFixed: parseFloat(
+            data.fixedIncome.privatePensionFixed.replace(/[R$\.\s]/g, "").replace(",", ".")
+        ) || 0,
     },
     variableIncome: {
-        total: parseFloat(data.variableIncome.total.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0,
-        investmentFunds: parseFloat(data.variableIncome.investmentFunds.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0,
-        privatePensionVariable: parseFloat(data.variableIncome.privatePensionVariable.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0,
-        stockMarket: parseFloat(data.variableIncome.stockMarket.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0,
+        total: parseFloat(
+            data.variableIncome.total.replace(/[R$\.\s]/g, "").replace(",", ".")
+        ) || 0,
+        investmentFunds: parseFloat(
+            data.variableIncome.investmentFunds.replace(/[R$\.\s]/g, "").replace(",", ".")
+        ) || 0,
+        privatePensionVariable: parseFloat(
+            data.variableIncome.privatePensionVariable.replace(/[R$\.\s]/g, "").replace(",", ".")
+        ) || 0,
+        stockMarket: parseFloat(
+            data.variableIncome.stockMarket.replace(/[R$\.\s]/g, "").replace(",", ".")
+        ) || 0,
     },
 });
 

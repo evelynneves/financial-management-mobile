@@ -17,7 +17,7 @@ import {
 } from "firebase/firestore";
 import { auth } from "@/firebase/config";
 import { Transaction } from "./StatementCard";
-import { useAuth } from "@/app/context/auth-context";
+import { useAuth } from "@/context/auth-context";
 
 interface EditModalProps {
     visible: boolean;

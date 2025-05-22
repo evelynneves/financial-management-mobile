@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import RNPickerSelect from "react-native-picker-select";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import ScreenWrapper from "@/app/components/ScreenWrapper";
+import ScreenWrapper from "@/components/ScreenWrapper";
 import {
     getFirestore,
     collection,
@@ -22,7 +22,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import * as DocumentPicker from "expo-document-picker";
 import { auth } from "@/firebase/config";
 import { router, useFocusEffect } from "expo-router";
-import { useAuth } from "@/app/context/auth-context";
+import { useAuth } from "@/context/auth-context";
 
 const transactionTypes = [
     { label: "Depósito", value: "deposito" },
@@ -120,15 +120,22 @@ const NewTransaction = () => {
             if (!uid || !amount) return;
 
             let attachmentFileId: string | null = null;
+            let attachmentUrl: string | null = null;
 
             if (pdf) {
+                const filePath = `receipts/${uid}/${Date.now()}_${pdf.name}`;
                 const response = await fetch(pdf.uri);
                 const blob = await response.blob();
-                const fileRef = ref(storage, `receipts/${uid}/${Date.now()}_${pdf.name}`);
-                await uploadBytes(fileRef, blob);
-                attachmentFileId = await getDownloadURL(fileRef);
-            }
+                const fileRef = ref(storage, filePath);
 
+                console.log("📄 URI:", pdf.uri);
+                console.log("📦 Blob size:", blob.size);
+                console.log("📦 Blob type:", blob.type);
+
+                await uploadBytes(fileRef, blob);
+                attachmentFileId = filePath;
+                attachmentUrl = await getDownloadURL(fileRef);
+            }
             const monthNames = [
                 "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
                 "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
@@ -149,6 +156,7 @@ const NewTransaction = () => {
                 isNegative,
                 ...((transactionType === "investimento" || transactionType === "resgate") && { investmentType }),
                 attachmentFileId,
+                attachmentUrl,
                 createdAt: serverTimestamp(),
             };
 

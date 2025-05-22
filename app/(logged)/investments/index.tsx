@@ -1,5 +1,5 @@
-import ScreenWrapper from "@/app/components/ScreenWrapper";
-import { useAuth } from "@/app/context/auth-context";
+import ScreenWrapper from "@/components/ScreenWrapper";
+import { useAuth } from "@/context/auth-context";
 import React, { useMemo } from "react";
 import { View, StyleSheet, Text, Dimensions } from "react-native";
 import { PieChart } from "react-native-chart-kit";

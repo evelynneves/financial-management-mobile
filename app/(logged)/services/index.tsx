@@ -1,4 +1,4 @@
-import ScreenWrapper from "@/app/components/ScreenWrapper";
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { useState } from "react";
 import {
     Text,
@@ -16,32 +16,32 @@ export default function Services() {
         {
             id: "1",
             title: "Empréstimo",
-            icon: require("@/assets/images/loan_icon.svg"),
+            icon: require("@/assets/images/loan_icon.png"),
         },
         {
             id: "2",
             title: "Meus cartões",
-            icon: require("@/assets/images/card_icon.svg"),
+            icon: require("@/assets/images/card_icon.png"),
         },
         {
             id: "3",
             title: "Doações",
-            icon: require("@/assets/images/donations_icon.svg"),
+            icon: require("@/assets/images/donations_icon.png"),
         },
         {
             id: "4",
             title: "Pix",
-            icon: require("@/assets/images/pix_icon.svg"),
+            icon: require("@/assets/images/pix_icon.png"),
         },
         {
             id: "5",
             title: "Seguros",
-            icon: require("@/assets/images/insurance_icon.svg"),
+            icon: require("@/assets/images/insurance_icon.png"),
         },
         {
             id: "6",
             title: "Crédito celular",
-            icon: require("@/assets/images/cell_phone_credit_icon.svg"),
+            icon: require("@/assets/images/cell_phone_credit_icon.png"),
         },
     ];
 
@@ -51,28 +51,25 @@ export default function Services() {
                 <Text style={styles.title}>
                     Confira os serviços disponíveis
                 </Text>
-
-                <FlatList
-                    data={services}
-                    keyExtractor={(item) => item.id}
-                    contentContainerStyle={styles.list}
-                    renderItem={({ item }) => (
+                <View style={styles.list}>
+                    {services.map((item) => (
                         <TouchableOpacity
-                            style={[
-                                styles.card,
-                                selected === item.id && styles.selectedCard,
-                            ]}
-                            onPress={() => setSelected(item.id)}
+                        key={item.id}
+                        style={[
+                            styles.card,
+                            selected === item.id && styles.selectedCard,
+                        ]}
+                        onPress={() => setSelected(item.id)}
                         >
-                            <Image
-                                source={item.icon}
-                                style={styles.icon}
-                                resizeMode="contain"
-                            />
-                            <Text style={styles.label}>{item.title}</Text>
+                        <Image
+                            source={item.icon}
+                            style={styles.icon}
+                            resizeMode="contain"
+                        />
+                        <Text style={styles.label}>{item.title}</Text>
                         </TouchableOpacity>
-                    )}
-                />
+                    ))}
+                </View>
             </View>
         </ScreenWrapper>
     );

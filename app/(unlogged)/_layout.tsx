@@ -14,7 +14,7 @@ export default function UnloggedLayout() {
 				headerTitle: "",
 				headerRight: () => (
 					<Image
-						source={require("@/assets/images/logo.svg")}
+						source={require("@/assets/images/logo.png")}
 						style={{ width: 145, height: 25, marginRight: 16 }}
 						resizeMode="contain"
 					/>

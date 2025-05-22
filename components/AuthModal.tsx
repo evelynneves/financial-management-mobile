@@ -11,7 +11,7 @@ import {
     ActivityIndicator,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useAuth } from "@/app/context/auth-context";
+import { useAuth } from "@/context/auth-context";
 
 interface Props {
     visible: boolean;
@@ -120,8 +120,8 @@ export default function AuthModal({
                     <Image
                         source={
                             mode === "signup"
-                                ? require("@/assets/images/illustration_registration.svg")
-                                : require("@/assets/images/illustration_login.svg")
+                                ? require("@/assets/images/illustration_registration.png")
+                                : require("@/assets/images/illustration_login.png")
                         }
                         style={styles.image}
                         resizeMode="contain"
@@ -266,7 +266,6 @@ const styles = StyleSheet.create({
         color: "#000",
     },
     inputWrapper: {
-        flex: 1,
         marginBottom: 5,
         gap: 20,
     },

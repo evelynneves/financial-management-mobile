@@ -1,9 +1,9 @@
-import ScreenWrapper from "@/app/components/ScreenWrapper";
+import ScreenWrapper from "@/components/ScreenWrapper";
 import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import StatementCard from "@/app/components/StatementCard";
-import { useAuth } from "@/app/context/auth-context";
+import StatementCard from "@/components/StatementCard";
+import { useAuth } from "@/context/auth-context";
 
 export default function Home() {
     const { user, userData } = useAuth();

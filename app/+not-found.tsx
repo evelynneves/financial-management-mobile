@@ -8,7 +8,7 @@ import {
     ScrollView,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import Footer from "./components/Footer";
+import Footer from "../components/Footer";
 
 export default function NotFoundPage() {
     const router = useRouter();
@@ -39,7 +39,7 @@ export default function NotFoundPage() {
                     </TouchableOpacity>
 
                     <Image
-                        source={require("@/assets/images/illustration_404.svg")}
+                        source={require("@/assets/images/illustration_404.png")}
                         style={styles.illustration}
                         resizeMode="contain"
                     />

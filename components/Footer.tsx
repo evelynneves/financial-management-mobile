@@ -20,22 +20,22 @@ export default function Footer() {
             <View style={styles.footerContainer}>
                 <Text style={styles.footerTitle}>Desenvolvido por Alura</Text>
                 <Image
-                    source={require("@/assets/images/logo_footer.svg")}
+                    source={require("@/assets/images/logo_footer.png")}
                     style={styles.logo}
                     resizeMode="contain"
                 />
                 <View style={styles.socialMediaContainer}>
                     <Image
                         style={styles.socialMediaIcon}
-                        source={require("@/assets/images/instagram_icon.svg")}
+                        source={require("@/assets/images/instagram_icon.png")}
                     />
                     <Image
                         style={styles.socialMediaIcon}
-                        source={require("@/assets/images/whatsapp_icon.svg")}
+                        source={require("@/assets/images/whatsapp_icon.png")}
                     />
                     <Image
                         style={styles.socialMediaIcon}
-                        source={require("@/assets/images/youtube_icon.svg")}
+                        source={require("@/assets/images/youtube_icon.png")}
                     />
                 </View>
             </View>

@@ -1,6 +1,6 @@
 import { Slot } from "expo-router";
 import { View, ActivityIndicator } from "react-native";
-import { AuthProvider, useAuth } from "./context/auth-context";
+import { AuthProvider, useAuth } from "../context/auth-context";
 
 function LayoutContent() {
     const { loading } = useAuth();

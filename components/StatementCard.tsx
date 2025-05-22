@@ -3,8 +3,8 @@ import { View, Text, StyleSheet, TouchableOpacity, Linking} from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";
 import ConfirmEditModal from "./ConfirmEditModal";
-import { useAuth } from "@/app/context/auth-context";
 import TransactionDetailsModal from "./TransactionDetailsModal";
+import { useAuth } from "@/context/auth-context";
 
 export type TransactionType =
     | "Depósito"
@@ -20,6 +20,7 @@ export interface Transaction {
     amount: number;
     investmentType?: string;
     attachmentFileId: string | null;
+    attachmentUrl: string | null;
     isNegative: boolean;
 }
 
@@ -75,7 +76,7 @@ export default function StatementCard({
                             <View style={styles.iconGroup}>
                                 {item.attachmentFileId && (
                                     <TouchableOpacity
-                                        onPress={() => handleOpenAttachment(item.attachmentFileId!)}
+                                        onPress={() => handleOpenAttachment(item.attachmentUrl!)}
                                     >
                                         <MaterialCommunityIcons
                                             name="paperclip"
