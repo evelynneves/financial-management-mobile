@@ -16,7 +16,6 @@ npm start
 Ou use os atalhos:
 - `npm run android`: abre no Android Studio ou dispositivo Android conectado
 - `npm run ios`: abre no simulador iOS (macOS)
-- `npm run web`: abre no navegador
 
 ## 📱 Testar no celular
 
@@ -41,7 +40,6 @@ npm start
 - `npm start`: Inicia o projeto com o menu interativo do Expo
 - `npm run android`: Abre o app em um emulador Android
 - `npm run ios`: Abre o app em um simulador iOS
-- `npm run web`: Abre o app no navegador
 - `npm run lint`: Roda o linter
 - `npm run reset-project`: Reseta o projeto removendo o conteúdo da pasta `app` e copiando os exemplos da pasta `app-example`
 
