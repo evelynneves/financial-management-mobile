@@ -158,6 +158,10 @@ export default function Home() {
                 <View style={styles.statementBox}>
                     {loading ? (
                         <ActivityIndicator size="large" color="#004D61" style={{ marginTop: 40 }} />
+                    ) : transactions.length === 0 ? (
+                        <Text style={styles.emptyMessage}>
+                            {"🤖 Nenhuma transação por aqui ainda...\nVamos movimentar sua conta? 💸"}
+                        </Text>
                     ) : (
                         <FlatList
                             data={transactions}
@@ -256,6 +260,14 @@ const styles = StyleSheet.create({
         backgroundColor: "#fff",
         borderRadius: 8,
         overflow: "hidden",
+    },
+    emptyMessage: {
+        marginTop: 40,
+        fontSize: 14,
+        color: "#666",
+        textAlign: "center",
+        lineHeight: 24,
+        paddingHorizontal: 30,
     },
     listContent: {
         padding: 20,

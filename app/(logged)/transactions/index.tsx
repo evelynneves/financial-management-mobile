@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
     },
     emptyMessage: {
         marginTop: 40,
-        fontSize: 16,
+        fontSize: 14,
         color: "#666",
         textAlign: "center",
         lineHeight: 24,

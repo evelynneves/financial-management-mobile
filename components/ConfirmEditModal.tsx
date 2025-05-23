@@ -43,7 +43,8 @@ export default function ConfirmEditModal({
 
     useEffect(() => {
         if (transaction) {
-            setDate(new Date(transaction.date));
+            const [year, month, day] = transaction.date.split("-");
+            setDate(new Date(Number(year), Number(month) - 1, Number(day)));
             setAmount(formatCurrency(parseCurrency(transaction.amount)));
 
             if (transaction.type === "Resgate") {
@@ -255,6 +256,7 @@ export default function ConfirmEditModal({
                             value={date}
                             mode="date"
                             display="default"
+                            textColor="#004D61"
                             onChange={(_, selectedDate) => {
                                 setShowDatePicker(false);
                                 if (selectedDate) setDate(selectedDate);

@@ -58,6 +58,11 @@ export default function StatementCard({
         }
     };
 
+    function formatDate(dateString: string): string {
+        const [year, month, day] = dateString.split("-");
+        return `${day}/${month}/${year}`;
+    }
+
     return (
         <View style={styles.card}>
             {transactions.map((item, index) => (
@@ -125,7 +130,7 @@ export default function StatementCard({
                             {item.type}
                         </Text>
                         <Text style={styles.date}>
-                            {new Date(item.date).toLocaleDateString("pt-BR")}
+                            {formatDate(item.date)}
                         </Text>
                     </View>
 
