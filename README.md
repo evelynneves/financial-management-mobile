@@ -2,6 +2,8 @@
 
 Este é um aplicativo mobile de gerenciamento financeiro construído com [Expo](https://expo.dev), [React Native](https://reactnative.dev) e [Firebase](https://firebase.google.com/).
 
+> ⚠️ Este projeto foi desenvolvido com foco exclusivo em dispositivos móveis (Android e iOS). Algumas funcionalidades, podem não funcionar corretamente na versão web.
+
 ## 🚀 Começando
 
 ### 1. Instalar dependências
@@ -35,6 +37,15 @@ npm start
   ```bash
   npm run android
   ```
+
+## 👤 Usuário de Teste
+
+> Para facilitar a validação, você pode usar o seguinte usuário de teste já cadastrado:
+
+- **Email:** `aluno@demo.com`  
+- **Senha:** `123456`
+
+**Esse usuário já possui permissões para acessar e testar as funcionalidades do app, como adicionar, editar e visualizar transações financeiras.**
 
 ## 🛠 Scripts disponíveis
 - `npm start`: Inicia o projeto com o menu interativo do Expo
