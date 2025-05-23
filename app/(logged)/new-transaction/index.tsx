@@ -20,7 +20,6 @@ import {
 } from "react-native";
 import RNPickerSelect from "react-native-picker-select";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import ScreenWrapper from "@/components/ScreenWrapper";
 import {
     getFirestore,
     collection,
@@ -32,10 +31,12 @@ import {
 } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import * as DocumentPicker from "expo-document-picker";
-import { auth } from "@/firebase/config";
 import { router, useFocusEffect } from "expo-router";
-import { useAuth } from "@/context/auth-context";
+
+import { auth } from "@/firebase/config";
+import ScreenWrapper from "@/components/ScreenWrapper";
 import { updateUserBalance } from "@/firebase/helpers/balance";
+import { useAuth } from "@/context/auth-context";
 
 const transactionTypes = [
     { label: "Depósito", value: "deposito" },

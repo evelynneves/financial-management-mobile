@@ -1,3 +1,13 @@
+/******************************************************************************
+*                                                                             *
+* Creation Date : 16/04/2025                                                  *
+*                                                                             *
+* Property : (c) This program, code or item is the Intellectual Property of   *
+* Evelyn Neves Barreto. Any use or copy of this code is prohibited without    *
+* the express written authorization of Evelyn. All rights reserved.           *
+*                                                                             *
+*******************************************************************************/
+
 import React, { useCallback, useEffect, useState } from "react";
 import {
     View,
@@ -25,9 +35,10 @@ import {
     where,
     getDocs,
 } from "firebase/firestore";
+import { useFocusEffect } from "expo-router";
+
 import { auth } from "@/firebase/config";
 import StatementCard, { Transaction } from "@/components/StatementCard";
-import { useFocusEffect } from "expo-router";
 
 const PAGE_SIZE = 5;
 const transactionTypes = ["Resgate", "Investimento", "Transferência", "Depósito"];
@@ -75,6 +86,7 @@ export default function Transactions() {
                 setSearchTerm("");
                 setDebouncedSearchTerm("");
             };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         }, [])
     );
 

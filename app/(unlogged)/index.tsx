@@ -1,3 +1,13 @@
+/******************************************************************************
+*                                                                             *
+* Creation Date : 16/04/2025                                                  *
+*                                                                             *
+* Property : (c) This program, code or item is the Intellectual Property of   *
+* Evelyn Neves Barreto. Any use or copy of this code is prohibited without    *
+* the express written authorization of Evelyn. All rights reserved.           *
+*                                                                             *
+*******************************************************************************/
+
 import {
     View,
     Text,
@@ -9,6 +19,7 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
+
 import Footer from "../../components/Footer";
 import SignupModal from "@/components/SignupModal";
 import LoginModal from "@/components/LoginModal";
@@ -93,16 +104,6 @@ export default function Index() {
                 visible={showSignup}
                 onClose={() => setShowSignup(false)}
             />
-            {/* <AuthModal
-                visible={showSignup}
-                onClose={() => setShowSignup(false)}
-                mode="signup"
-            />
-            <AuthModal
-                visible={showLogin}
-                onClose={() => setShowLogin(false)}
-                mode="login"
-            /> */}
         </LinearGradient>
     );
 }

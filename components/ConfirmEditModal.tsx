@@ -25,6 +25,7 @@ import {
     getFirestore,
     setDoc,
 } from "firebase/firestore";
+
 import { auth } from "@/firebase/config";
 import { Transaction } from "./StatementCard";
 import { useAuth } from "@/context/auth-context";

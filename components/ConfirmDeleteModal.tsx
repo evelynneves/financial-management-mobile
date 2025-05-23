@@ -18,10 +18,11 @@ import {
     getFirestore,
     setDoc,
 } from "firebase/firestore";
+import { getStorage, ref, deleteObject } from "firebase/storage";
+
 import { auth } from "@/firebase/config";
 import { useAuth } from "@/context/auth-context";
 import { Transaction } from "./StatementCard";
-import { getStorage, ref, deleteObject } from "firebase/storage";
 import { updateUserBalance } from "@/firebase/helpers/balance";
 
 interface ConfirmDeleteModalProps {

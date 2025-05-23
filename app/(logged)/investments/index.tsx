@@ -1,8 +1,19 @@
-import ScreenWrapper from "@/components/ScreenWrapper";
-import { useAuth } from "@/context/auth-context";
+/******************************************************************************
+*                                                                             *
+* Creation Date : 16/04/2025                                                  *
+*                                                                             *
+* Property : (c) This program, code or item is the Intellectual Property of   *
+* Evelyn Neves Barreto. Any use or copy of this code is prohibited without    *
+* the express written authorization of Evelyn. All rights reserved.           *
+*                                                                             *
+*******************************************************************************/
+
 import React, { useMemo } from "react";
 import { View, StyleSheet, Text, Dimensions } from "react-native";
 import { PieChart } from "react-native-chart-kit";
+
+import ScreenWrapper from "@/components/ScreenWrapper";
+import { useAuth } from "@/context/auth-context";
 
 const screenWidth = Dimensions.get("window").width;
 

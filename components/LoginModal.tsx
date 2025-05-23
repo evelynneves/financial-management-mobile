@@ -1,3 +1,13 @@
+/******************************************************************************
+*                                                                             *
+* Creation Date : 16/04/2025                                                  *
+*                                                                             *
+* Property : (c) This program, code or item is the Intellectual Property of   *
+* Evelyn Neves Barreto. Any use or copy of this code is prohibited without    *
+* the express written authorization of Evelyn. All rights reserved.           *
+*                                                                             *
+*******************************************************************************/
+
 import React, { useEffect, useState } from "react";
 import {
     View,
@@ -14,7 +24,6 @@ import {
     Image,
     ActivityIndicator,
 } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useAuth } from "@/context/auth-context";
 
 interface Props {
@@ -55,7 +64,7 @@ export default function LoginModal({ visible, onClose, onSuccess }: Props) {
             onSuccess?.();
             onClose();
         } catch (err: any) {
-            // console.error(err);
+            console.error(err);
             switch (err.code) {
                 case "auth/user-not-found":
                 case "auth/wrong-password":

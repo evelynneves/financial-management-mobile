@@ -1,50 +1,70 @@
-# Welcome to your Expo app 👋
+# Financial Management Mobile 📱
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Este é um aplicativo mobile de gerenciamento financeiro construído com [Expo](https://expo.dev), [React Native](https://reactnative.dev) e [Firebase](https://firebase.google.com/).
 
-## Get started
+## 🚀 Começando
 
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
+### 1. Instalar dependências
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 2. Rodar o app
+```bash
+npm start
+```
+Ou use os atalhos:
+- `npm run android`: abre no Android Studio ou dispositivo Android conectado
+- `npm run ios`: abre no simulador iOS (macOS)
+- `npm run web`: abre no navegador
 
-## Learn more
+## 📱 Testar no celular
 
-To learn more about developing your project with Expo, look at the following resources:
+### Opção 1: Usando o **Expo Go** (modo mais fácil)
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+1. Baixe o app [Expo Go](https://expo.dev/go) na Play Store ou App Store.
+2. Execute o comando abaixo para gerar o QR Code:
+```bash
+npm start
+```
+3. Escaneie o QR Code com a câmera do seu celular.
+   - Android: o app Expo Go abrirá diretamente
+   - iOS: abra com Safari se não funcionar direto
 
-## Join the community
+### Opção 2: Usando um emulador Android
+- Android: abra o Android Studio, inicie um emulador e rode:
+  ```bash
+  npm run android
+  ```
 
-Join our community of developers creating universal apps.
+## 🛠 Scripts disponíveis
+- `npm start`: Inicia o projeto com o menu interativo do Expo
+- `npm run android`: Abre o app em um emulador Android
+- `npm run ios`: Abre o app em um simulador iOS
+- `npm run web`: Abre o app no navegador
+- `npm run lint`: Roda o linter
+- `npm run reset-project`: Reseta o projeto removendo o conteúdo da pasta `app` e copiando os exemplos da pasta `app-example`
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## 🔍 Tecnologias utilizadas
+- **React Native** 0.79.2
+- **Expo Router** ~5.0.6
+- **Firebase** (auth, firestore, storage)
+- **TypeScript** ~5.8
+- **react-native-chart-kit** para gráficos
+- **expo-document-picker** para upload de comprovantes
+
+## 📚 Aprenda mais
+- [Documentação do Expo](https://docs.expo.dev/)
+- [Tutorial Expo](https://docs.expo.dev/tutorial/introduction/)
+
+## 👥 Comunidade
+- [Expo no GitHub](https://github.com/expo/expo)
+- [Expo Discord](https://chat.expo.dev)
+
+---
+
+> Projeto desenvolvido com foco em controle de transações financeiras, investimentos, resgates e geração de extratos.
+
+---
+
+**© 2025 - Financial Management Mobile**

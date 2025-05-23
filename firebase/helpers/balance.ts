@@ -1,9 +1,15 @@
+/******************************************************************************
+*                                                                             *
+* Creation Date : 16/04/2025                                                  *
+*                                                                             *
+* Property : (c) This program, code or item is the Intellectual Property of   *
+* Evelyn Neves Barreto. Any use or copy of this code is prohibited without    *
+* the express written authorization of Evelyn. All rights reserved.           *
+*                                                                             *
+*******************************************************************************/
+
 import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 
-/**
- * Atualiza o saldo do usuário, somando/subtraindo o delta ao saldo atual.
- * Armazena o saldo em: users/{uid}/summary/totals
- */
 export async function updateUserBalance(uid: string, delta: number) {
     const db = getFirestore();
     const summaryRef = doc(db, "users", uid, "summary", "totals");
@@ -16,9 +22,6 @@ export async function updateUserBalance(uid: string, delta: number) {
     await setDoc(summaryRef, { balance: newBalance }, { merge: true });
 }
 
-/**
- * Retorna o saldo total salvo do usuário.
- */
 export async function getUserBalance(uid: string): Promise<number> {
     const db = getFirestore();
     const summaryRef = doc(db, "users", uid, "summary", "totals");

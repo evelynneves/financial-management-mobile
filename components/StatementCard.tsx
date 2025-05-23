@@ -1,3 +1,13 @@
+/******************************************************************************
+*                                                                             *
+* Creation Date : 16/04/2025                                                  *
+*                                                                             *
+* Property : (c) This program, code or item is the Intellectual Property of   *
+* Evelyn Neves Barreto. Any use or copy of this code is prohibited without    *
+* the express written authorization of Evelyn. All rights reserved.           *
+*                                                                             *
+*******************************************************************************/
+
 import React, { useState } from "react";
 import {
     View,
@@ -7,6 +17,7 @@ import {
     Linking,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+
 import TransactionDetailsModal from "./TransactionDetailsModal";
 import ConfirmEditModal from "./ConfirmEditModal";
 import ConfirmDeleteModal from "./ConfirmDeleteModal";

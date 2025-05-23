@@ -1,3 +1,13 @@
+/******************************************************************************
+*                                                                             *
+* Creation Date : 16/04/2025                                                  *
+*                                                                             *
+* Property : (c) This program, code or item is the Intellectual Property of   *
+* Evelyn Neves Barreto. Any use or copy of this code is prohibited without    *
+* the express written authorization of Evelyn. All rights reserved.           *
+*                                                                             *
+*******************************************************************************/
+
 import React, { useState, useEffect } from "react";
 import {
     View,
@@ -14,6 +24,7 @@ import {
     Keyboard,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+
 import { useAuth } from "@/context/auth-context";
 
 interface Props {

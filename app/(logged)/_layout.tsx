@@ -1,10 +1,21 @@
+/******************************************************************************
+*                                                                             *
+* Creation Date : 16/04/2025                                                  *
+*                                                                             *
+* Property : (c) This program, code or item is the Intellectual Property of   *
+* Evelyn Neves Barreto. Any use or copy of this code is prohibited without    *
+* the express written authorization of Evelyn. All rights reserved.           *
+*                                                                             *
+*******************************************************************************/
+
 import { Drawer } from "expo-router/drawer";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { useAuth } from "@/context/auth-context";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
 import { ActivityIndicator, Platform, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+import { useAuth } from "@/context/auth-context";
 import UserMenu from "@/components/UserMenu";
 
 export default function LoggedLayout() {
