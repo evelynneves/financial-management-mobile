@@ -165,7 +165,7 @@ const NewTransaction = () => {
             const month = monthNames[date.getMonth()];
             const formattedDate = date.toISOString().split("T")[0];
             const numericAmount = parseCurrency(amount);
-            const isNegative = transactionType !== "deposito";
+            const isNegative = transactionType !== "deposito" && transactionType !== "resgate",
 
             const newTransaction = {
                 month,
