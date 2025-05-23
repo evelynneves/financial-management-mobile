@@ -5,6 +5,7 @@ import {
     TextInput,
     TouchableOpacity,
     StyleSheet,
+    Platform,
 } from "react-native";
 import RNPickerSelect from "react-native-picker-select";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -36,7 +37,10 @@ const investmentOptions = [
     { label: "Bolsa de Valores", value: "Bolsa de Valores" },
     { label: "Fundos de investimento", value: "Fundos de investimento" },
     { label: "Previdência Privada Fixa", value: "Previdência Privada Fixa" },
-    { label: "Previdência Privada Variável", value: "Previdência Privada Variável" },
+    {
+        label: "Previdência Privada Variável",
+        value: "Previdência Privada Variável",
+    },
     { label: "Tesouro Direto", value: "Tesouro Direto" },
 ];
 
@@ -47,7 +51,9 @@ const NewTransaction = () => {
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [amount, setAmount] = useState("");
     const [availableAmount, setAvailableAmount] = useState(0);
-    const [pdf, setPdf] = useState<DocumentPicker.DocumentPickerAsset | null>(null);
+    const [pdf, setPdf] = useState<DocumentPicker.DocumentPickerAsset | null>(
+        null
+    );
     const { refreshUserData, userData } = useAuth();
     const db = getFirestore();
     const storage = getStorage();
@@ -69,7 +75,9 @@ const NewTransaction = () => {
                 available = parseCurrency(data.fixedIncome.privatePensionFixed);
                 break;
             case "Previdência Privada Variável":
-                available = parseCurrency(data.variableIncome.privatePensionVariable);
+                available = parseCurrency(
+                    data.variableIncome.privatePensionVariable
+                );
                 break;
             case "Bolsa de Valores":
                 available = parseCurrency(data.variableIncome.stockMarket);
@@ -94,9 +102,11 @@ const NewTransaction = () => {
     const isFormValid = (): boolean => {
         const parsedAmount = parseCurrency(amount);
         const isBasicValid = !!transactionType && !!date && parsedAmount > 0;
-        const needsInvestmentType = transactionType === "investimento" || transactionType === "resgate";
+        const needsInvestmentType =
+            transactionType === "investimento" || transactionType === "resgate";
         const validInvestmentType = !needsInvestmentType || !!investmentType;
-        const validResgate = transactionType !== "resgate" || parsedAmount <= availableAmount;
+        const validResgate =
+            transactionType !== "resgate" || parsedAmount <= availableAmount;
         return isBasicValid && validInvestmentType && validResgate;
     };
 
@@ -135,8 +145,18 @@ const NewTransaction = () => {
             }
 
             const monthNames = [
-                "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-                "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
+                "Janeiro",
+                "Fevereiro",
+                "Março",
+                "Abril",
+                "Maio",
+                "Junho",
+                "Julho",
+                "Agosto",
+                "Setembro",
+                "Outubro",
+                "Novembro",
+                "Dezembro",
             ];
             const month = monthNames[date.getMonth()];
             const formattedDate = date.toISOString().split("T")[0];
@@ -146,26 +166,48 @@ const NewTransaction = () => {
             const newTransaction = {
                 month,
                 date: formattedDate,
-                type: transactionType === "deposito" ? "Depósito"
-                    : transactionType === "transferencia" ? "Transferência"
-                    : transactionType === "investimento" ? "Investimento"
-                    : "Resgate",
+                type:
+                    transactionType === "deposito"
+                        ? "Depósito"
+                        : transactionType === "transferencia"
+                        ? "Transferência"
+                        : transactionType === "investimento"
+                        ? "Investimento"
+                        : "Resgate",
                 amount: numericAmount,
                 isNegative,
-                ...((transactionType === "investimento" || transactionType === "resgate") && { investmentType }),
+                ...((transactionType === "investimento" ||
+                    transactionType === "resgate") && { investmentType }),
                 attachmentFileId,
                 attachmentUrl,
                 createdAt: serverTimestamp(),
             };
 
-            await addDoc(collection(db, "users", uid, "transactions"), newTransaction);
+            await addDoc(
+                collection(db, "users", uid, "transactions"),
+                newTransaction
+            );
 
-            if (newTransaction.type === "Investimento" || newTransaction.type === "Resgate") {
-                const investmentsRef = doc(db, "users", uid, "investments", "summary");
+            if (
+                newTransaction.type === "Investimento" ||
+                newTransaction.type === "Resgate"
+            ) {
+                const investmentsRef = doc(
+                    db,
+                    "users",
+                    uid,
+                    "investments",
+                    "summary"
+                );
                 const snapshot = await getDoc(investmentsRef);
-                const data = snapshot.exists() ? parseInvestmentData(snapshot.data()) : getEmptyInvestments();
+                const data = snapshot.exists()
+                    ? parseInvestmentData(snapshot.data())
+                    : getEmptyInvestments();
 
-                const delta = newTransaction.type === "Resgate" ? -numericAmount : numericAmount;
+                const delta =
+                    newTransaction.type === "Resgate"
+                        ? -numericAmount
+                        : numericAmount;
                 switch (investmentType) {
                     case "Fundos de investimento":
                         data.variableIncome.investmentFunds += delta;
@@ -184,14 +226,23 @@ const NewTransaction = () => {
                         break;
                 }
 
-                data.fixedIncome.total = data.fixedIncome.privatePensionFixed + data.fixedIncome.governmentBonds;
-                data.variableIncome.total = data.variableIncome.investmentFunds + data.variableIncome.privatePensionVariable + data.variableIncome.stockMarket;
-                data.totalAmount = data.fixedIncome.total + data.variableIncome.total;
+                data.fixedIncome.total =
+                    data.fixedIncome.privatePensionFixed +
+                    data.fixedIncome.governmentBonds;
+                data.variableIncome.total =
+                    data.variableIncome.investmentFunds +
+                    data.variableIncome.privatePensionVariable +
+                    data.variableIncome.stockMarket;
+                data.totalAmount =
+                    data.fixedIncome.total + data.variableIncome.total;
 
                 await setDoc(investmentsRef, toCurrencyData(data));
             }
 
-            await updateUserBalance(uid, isNegative ? -numericAmount : numericAmount);
+            await updateUserBalance(
+                uid,
+                isNegative ? -numericAmount : numericAmount
+            );
             await refreshUserData();
             resetForm();
             router.replace("/home");
@@ -209,18 +260,27 @@ const NewTransaction = () => {
     };
 
     const parseCurrency = (value: string): number => {
-        return parseFloat(value.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0;
+        return (
+            parseFloat(value.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0
+        );
     };
 
     const formatCurrency = (value: number, isNegative?: boolean): string => {
         const prefix = isNegative ? "- R$" : "R$";
-        return `${prefix} ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
+        return `${prefix} ${value.toLocaleString("pt-BR", {
+            minimumFractionDigits: 2,
+        })}`;
     };
 
     const getEmptyInvestments = () => ({
         totalAmount: 0,
         fixedIncome: { total: 0, governmentBonds: 0, privatePensionFixed: 0 },
-        variableIncome: { total: 0, investmentFunds: 0, privatePensionVariable: 0, stockMarket: 0 },
+        variableIncome: {
+            total: 0,
+            investmentFunds: 0,
+            privatePensionVariable: 0,
+            stockMarket: 0,
+        },
     });
 
     const parseInvestmentData = (data: any) => ({
@@ -228,12 +288,16 @@ const NewTransaction = () => {
         fixedIncome: {
             total: parseCurrency(data.fixedIncome.total),
             governmentBonds: parseCurrency(data.fixedIncome.governmentBonds),
-            privatePensionFixed: parseCurrency(data.fixedIncome.privatePensionFixed),
+            privatePensionFixed: parseCurrency(
+                data.fixedIncome.privatePensionFixed
+            ),
         },
         variableIncome: {
             total: parseCurrency(data.variableIncome.total),
             investmentFunds: parseCurrency(data.variableIncome.investmentFunds),
-            privatePensionVariable: parseCurrency(data.variableIncome.privatePensionVariable),
+            privatePensionVariable: parseCurrency(
+                data.variableIncome.privatePensionVariable
+            ),
             stockMarket: parseCurrency(data.variableIncome.stockMarket),
         },
     });
@@ -243,12 +307,18 @@ const NewTransaction = () => {
         fixedIncome: {
             total: formatCurrency(data.fixedIncome.total),
             governmentBonds: formatCurrency(data.fixedIncome.governmentBonds),
-            privatePensionFixed: formatCurrency(data.fixedIncome.privatePensionFixed),
+            privatePensionFixed: formatCurrency(
+                data.fixedIncome.privatePensionFixed
+            ),
         },
         variableIncome: {
             total: formatCurrency(data.variableIncome.total),
-            investmentFunds: formatCurrency(data.variableIncome.investmentFunds),
-            privatePensionVariable: formatCurrency(data.variableIncome.privatePensionVariable),
+            investmentFunds: formatCurrency(
+                data.variableIncome.investmentFunds
+            ),
+            privatePensionVariable: formatCurrency(
+                data.variableIncome.privatePensionVariable
+            ),
             stockMarket: formatCurrency(data.variableIncome.stockMarket),
         },
     });
@@ -265,34 +335,58 @@ const NewTransaction = () => {
         <ScreenWrapper>
             <View style={styles.container}>
                 <Text style={styles.title}>Nova transação</Text>
-
                 <Text style={styles.label}>Selecione o tipo de transação</Text>
-                <RNPickerSelect
-                    onValueChange={setTransactionType}
-                    value={transactionType}
-                    items={transactionTypes}
-                    style={pickerSelectStyles}
-                />
+                <View style={styles.pickerWrapper}>
+                    <RNPickerSelect
+                        placeholder={{
+                            label: "Selecione um tipo",
+                            value: null,
+                        }}
+                        onValueChange={setTransactionType}
+                        value={transactionType}
+                        items={transactionTypes}
+                        style={{
+                            inputIOS: pickerSelectStyles.inputIOS,
+                            inputAndroid: pickerSelectStyles.inputAndroid,
+                            inputWeb: pickerSelectStyles.inputWeb,
+                        }}
+                        useNativeAndroidPickerStyle={false}
+                    />
+                </View>
 
-                {(transactionType === "investimento" || transactionType === "resgate") && (
+                {(transactionType === "investimento" ||
+                    transactionType === "resgate") && (
                     <>
                         <Text style={styles.label}>
                             {transactionType === "resgate"
                                 ? "De qual investimento deseja resgatar?"
                                 : "Tipo de Investimento"}
                         </Text>
-                        <RNPickerSelect
-                            placeholder={{ label: "Selecione um tipo", value: null }}
+                        <View style={styles.pickerWrapper}>
+                            <RNPickerSelect
+                            placeholder={{
+                                label: "Selecione um tipo",
+                                value: null,
+                            }}
                             onValueChange={handleInvestmentTypeChange}
                             value={investmentType}
                             items={investmentOptions}
-                            style={pickerSelectStyles}
-                        />
+                            style={{
+                                inputIOS: pickerSelectStyles.inputIOS,
+                                inputAndroid: pickerSelectStyles.inputAndroid,
+                                inputWeb: pickerSelectStyles.inputWeb,
+                            }}
+                            useNativeAndroidPickerStyle={false}
+                            />
+                        </View>
                     </>
                 )}
 
                 <Text style={styles.label}>Data</Text>
-                <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.dateInput}>
+                <TouchableOpacity
+                    onPress={() => setShowDatePicker(true)}
+                    style={styles.dateInput}
+                >
                     <Text>{date.toLocaleDateString("pt-BR")}</Text>
                 </TouchableOpacity>
                 {showDatePicker && (
@@ -300,7 +394,7 @@ const NewTransaction = () => {
                         value={date}
                         mode="date"
                         display="default"
-                        onChange={(e, selectedDate) => {
+                        onChange={(_, selectedDate) => {
                             setShowDatePicker(false);
                             if (selectedDate) setDate(selectedDate);
                         }}
@@ -315,7 +409,10 @@ const NewTransaction = () => {
                     placeholder="R$ 0,00"
                     style={[
                         styles.input,
-                        transactionType === "resgate" && parseCurrency(amount) > availableAmount && { borderColor: "red" },
+                        transactionType === "resgate" &&
+                            parseCurrency(amount) > availableAmount && {
+                                borderColor: "red",
+                            },
                     ]}
                 />
 
@@ -323,26 +420,33 @@ const NewTransaction = () => {
                     <>
                         {parseCurrency(amount) > availableAmount ? (
                             <Text style={styles.errorText}>
-                                O valor não pode ser maior que o disponível para resgate
+                                O valor não pode ser maior que o disponível para
+                                resgate
                             </Text>
                         ) : (
                             <Text style={styles.availableText}>
-                                Valor disponível para resgate: {formatCurrency(availableAmount)}
+                                Valor disponível para resgate:{" "}
+                                {formatCurrency(availableAmount)}
                             </Text>
                         )}
                     </>
                 )}
 
                 <Text style={styles.label}>Anexar comprovante (opcional)</Text>
-                <TouchableOpacity style={styles.uploadButton} onPress={handlePickPDF}>
-                    <Text style={styles.uploadText}
-                        numberOfLines={1}>
+                <TouchableOpacity
+                    style={styles.uploadButton}
+                    onPress={handlePickPDF}
+                >
+                    <Text style={styles.uploadText} numberOfLines={1}>
                         {pdf ? pdf.name : "Escolher arquivo"}
                     </Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                    style={[styles.submitButton, !isFormValid() && { opacity: 0.5 }]}
+                    style={[
+                        styles.submitButton,
+                        !isFormValid() && { opacity: 0.5 },
+                    ]}
                     onPress={handleSubmit}
                     disabled={!isFormValid()}
                 >
@@ -382,7 +486,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         backgroundColor: "#fff",
         fontSize: 16,
-        marginBottom: 10,
+        marginBottom: 20,
     },
     dateInput: {
         borderWidth: 1,
@@ -435,39 +539,32 @@ const styles = StyleSheet.create({
         marginTop: -5,
         marginBottom: 10,
     },
+
+    pickerWrapper: {
+        borderWidth: 1,
+        borderColor: "#004D61",
+        borderRadius: 8,
+        backgroundColor: "#fff",
+        marginBottom: 20,
+        paddingHorizontal: 10,
+        paddingVertical: Platform.OS === "android" ? 4 : 12,
+    },
 });
 
 const pickerSelectStyles = {
     inputIOS: {
         fontSize: 16,
-        paddingVertical: 12,
-        paddingHorizontal: 10,
-        borderWidth: 1,
-        borderColor: "#004D61",
-        borderRadius: 8,
-        backgroundColor: "#fff",
         color: "#004D61",
-        marginBottom: 10,
     },
     inputAndroid: {
         fontSize: 16,
-        paddingHorizontal: 10,
-        paddingVertical: 8,
-        borderWidth: 1,
-        borderColor: "#004D61",
-        borderRadius: 8,
-        backgroundColor: "#fff",
         color: "#004D61",
-        marginBottom: 10,
+        paddingVertical: 8,
+        backgroundColor: "transparent",
     },
     inputWeb: {
         fontSize: 16,
         padding: 10,
-        borderWidth: 1,
-        borderColor: "#004D61",
-        borderRadius: 8,
-        backgroundColor: "#fff",
         color: "#004D61",
-        marginBottom: 20,
     },
 };

@@ -9,8 +9,9 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
-import AuthModal from "../../components/AuthModal";
 import Footer from "../../components/Footer";
+import SignupModal from "@/components/SignupModal";
+import LoginModal from "@/components/LoginModal";
 
 export default function Index() {
     const [showSignup, setShowSignup] = useState(false);
@@ -84,7 +85,15 @@ export default function Index() {
                 <Footer />
             </ScrollView>
 
-            <AuthModal
+            <LoginModal
+                visible={showLogin}
+                onClose={() => setShowLogin(false)}
+            />
+            <SignupModal
+                visible={showSignup}
+                onClose={() => setShowSignup(false)}
+            />
+            {/* <AuthModal
                 visible={showSignup}
                 onClose={() => setShowSignup(false)}
                 mode="signup"
@@ -93,7 +102,7 @@ export default function Index() {
                 visible={showLogin}
                 onClose={() => setShowLogin(false)}
                 mode="login"
-            />
+            /> */}
         </LinearGradient>
     );
 }

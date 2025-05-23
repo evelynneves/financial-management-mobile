@@ -104,6 +104,7 @@ export default function Home() {
         useCallback(() => {
             fetchTransactions(true);
             fetchBalance();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         }, [uid, refreshKey])
     );
 

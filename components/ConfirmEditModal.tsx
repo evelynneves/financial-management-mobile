@@ -71,6 +71,7 @@ export default function ConfirmEditModal({
                 setAvailableAmount(available);
             }
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [transaction]);
 
     const handleAmountChange = (value: string) => {
@@ -254,7 +255,7 @@ export default function ConfirmEditModal({
                             value={date}
                             mode="date"
                             display="default"
-                            onChange={(e, selectedDate) => {
+                            onChange={(_, selectedDate) => {
                                 setShowDatePicker(false);
                                 if (selectedDate) setDate(selectedDate);
                             }}

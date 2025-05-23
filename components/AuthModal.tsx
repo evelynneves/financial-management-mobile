@@ -9,6 +9,9 @@ import {
     Image,
     Platform,
     ActivityIndicator,
+    KeyboardAvoidingView,
+    ScrollView,
+    Keyboard,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useAuth } from "@/context/auth-context";
@@ -79,8 +82,6 @@ export default function AuthModal({
             console.error(err);
             switch (err.code) {
                 case "auth/user-not-found":
-                    setError("Email ou senha incorreto. Por favor, revise os dados e tente novamente.");
-                    break;
                 case "auth/wrong-password":
                     setError("Email ou senha incorreto. Por favor, revise os dados e tente novamente.");
                     break;
@@ -105,129 +106,142 @@ export default function AuthModal({
     return (
         <Modal visible={visible} animationType="slide" transparent>
             <View style={styles.overlay}>
-                <View style={styles.modal}>
+                <KeyboardAvoidingView
+                    style={styles.modalWrapper}
+                    behavior={Platform.OS === "ios" ? "padding" : "height"}
+                >
                     <TouchableOpacity
-                        onPress={onClose}
-                        style={styles.closeButton}
+                        activeOpacity={1}
+                        onPress={Keyboard.dismiss}
+                        style={{ flex: 1 }}
                     >
-                        <MaterialCommunityIcons
-                            name="close"
-                            size={24}
-                            color="#000"
-                        />
-                    </TouchableOpacity>
-
-                    <Image
-                        source={
-                            mode === "signup"
-                                ? require("@/assets/images/illustration_registration.png")
-                                : require("@/assets/images/illustration_login.png")
-                        }
-                        style={styles.image}
-                        resizeMode="contain"
-                    />
-
-                    <Text style={styles.title}>
-                        {mode === "signup"
-                            ? "Preencha os campos abaixo para criar sua conta corrente!"
-                            : "Login"}
-                    </Text>
-                    <View style={styles.inputWrapper}>
-                        {mode === "signup" && (
-                            <TextInput
-                                placeholder="Digite seu nome completo *"
-                                style={[
-                                    styles.input,
-                                    focusedInput === "name" && styles.inputFocused,
-                                ]}
-                                value={name}
-                                onChangeText={setName}
-                                onFocus={() => setFocusedInput("name")}
-                                onBlur={() => setFocusedInput(null)}
-                            />
-                        )}
-
-                        <TextInput
-                            placeholder="Digite seu email *"
-                            style={[
-                                styles.input,
-                                focusedInput === "email" && styles.inputFocused,
-                                !!email &&
-                                    !isEmailValid(email) &&
-                                    styles.errorBorder,
-                            ]}
-                            value={email}
-                            onChangeText={setEmail}
-                            onFocus={() => setFocusedInput("email")}
-                            onBlur={() => setFocusedInput(null)}
-                            keyboardType="email-address"
-                        />
-
-                        {!!email && !isEmailValid(email) && (
-                            <Text style={styles.errorText}>
-                                Dado incorreto. Revise e digite novamente.
-                            </Text>
-                        )}
-
-                        <TextInput
-                            placeholder="Digite sua senha *"
-                            secureTextEntry
-                            style={[
-                                styles.input,
-                                focusedInput === "password" && styles.inputFocused,
-                            ]}
-                            value={password}
-                            onChangeText={setPassword}
-                            onFocus={() => setFocusedInput("password")}
-                            onBlur={() => setFocusedInput(null)}
-                        />
-
-                        {!!error && <Text style={styles.errorText}>{error}</Text>}
-
-                        {mode === "signup" && (
+                        <ScrollView
+                            contentContainerStyle={styles.modal}
+                            keyboardShouldPersistTaps="handled"
+                        >
                             <TouchableOpacity
-                                style={styles.checkboxRow}
-                                onPress={() => setAccepted((prev) => !prev)}
+                                onPress={onClose}
+                                style={styles.closeButton}
                             >
                                 <MaterialCommunityIcons
-                                    name={
-                                        accepted
-                                            ? "checkbox-marked"
-                                            : "checkbox-blank-outline"
-                                    }
-                                    size={20}
-                                    color="#47A138"
+                                    name="close"
+                                    size={24}
+                                    color="#000"
                                 />
-                                <Text style={styles.checkboxText}>
-                                    Li e estou ciente quanto às condições de
-                                    tratamento dos meus dados. *
-                                </Text>
                             </TouchableOpacity>
-                        )}
-                    </View>
 
-                    {mode === "login" && (
-                        <Text style={styles.forgot}>Esqueci a senha</Text>
-                    )}
+                            <Image
+                                source={
+                                    mode === "signup"
+                                        ? require("@/assets/images/illustration_registration.png")
+                                        : require("@/assets/images/illustration_login.png")
+                                }
+                                style={styles.image}
+                                resizeMode="contain"
+                            />
 
-                    <TouchableOpacity
-                        style={[
-                            styles.button,
-                            (!isFormValid() || isLoading) &&
-                                styles.buttonDisabled,
-                        ]}
-                        onPress={handleSubmit}
-                        disabled={!isFormValid() || isLoading}
-                    >
-                        {isLoading ? (
-                            <ActivityIndicator color="#fff" />
-                        ) : (
-                            <Text style={styles.buttonText}>
-                                {mode === "signup" ? "CRIAR CONTA" : "ACESSAR"}
+                            <Text style={styles.title}>
+                                {mode === "signup"
+                                    ? "Preencha os campos abaixo para criar sua conta corrente!"
+                                    : "Login"}
                             </Text>
-                        )}
+                            <View style={styles.inputWrapper}>
+                                {mode === "signup" && (
+                                    <TextInput
+                                        placeholder="Digite seu nome completo *"
+                                        style={[
+                                            styles.input,
+                                            focusedInput === "name" && styles.inputFocused,
+                                        ]}
+                                        value={name}
+                                        onChangeText={setName}
+                                        onFocus={() => setFocusedInput("name")}
+                                        onBlur={() => setFocusedInput(null)}
+                                    />
+                                )}
+
+                                <TextInput
+                                    placeholder="Digite seu email *"
+                                    style={[
+                                        styles.input,
+                                        focusedInput === "email" && styles.inputFocused,
+                                        !!email &&
+                                            !isEmailValid(email) &&
+                                            styles.errorBorder,
+                                    ]}
+                                    value={email}
+                                    onChangeText={setEmail}
+                                    onFocus={() => setFocusedInput("email")}
+                                    onBlur={() => setFocusedInput(null)}
+                                    keyboardType="email-address"
+                                />
+
+                                {!!email && !isEmailValid(email) && (
+                                    <Text style={styles.errorText}>
+                                        Dado incorreto. Revise e digite novamente.
+                                    </Text>
+                                )}
+
+                                <TextInput
+                                    placeholder="Digite sua senha *"
+                                    secureTextEntry
+                                    style={[
+                                        styles.input,
+                                        focusedInput === "password" && styles.inputFocused,
+                                    ]}
+                                    value={password}
+                                    onChangeText={setPassword}
+                                    onFocus={() => setFocusedInput("password")}
+                                    onBlur={() => setFocusedInput(null)}
+                                />
+
+                                {!!error && <Text style={styles.errorText}>{error}</Text>}
+
+                                {mode === "signup" && (
+                                    <TouchableOpacity
+                                        style={styles.checkboxRow}
+                                        onPress={() => setAccepted((prev) => !prev)}
+                                    >
+                                        <MaterialCommunityIcons
+                                            name={
+                                                accepted
+                                                    ? "checkbox-marked"
+                                                    : "checkbox-blank-outline"
+                                            }
+                                            size={20}
+                                            color="#47A138"
+                                        />
+                                        <Text style={styles.checkboxText}>
+                                            Li e estou ciente quanto às condições de
+                                            tratamento dos meus dados. *
+                                        </Text>
+                                    </TouchableOpacity>
+                                )}
+                            </View>
+
+                            {mode === "login" && (
+                                <Text style={styles.forgot}>Esqueci a senha</Text>
+                            )}
+
+                            <TouchableOpacity
+                                style={[
+                                    styles.button,
+                                    (!isFormValid() || isLoading) && styles.buttonDisabled,
+                                ]}
+                                onPress={handleSubmit}
+                                disabled={!isFormValid() || isLoading}
+                            >
+                                {isLoading ? (
+                                    <ActivityIndicator color="#fff" />
+                                ) : (
+                                    <Text style={styles.buttonText}>
+                                        {mode === "signup" ? "CRIAR CONTA" : "ACESSAR"}
+                                    </Text>
+                                )}
+                            </TouchableOpacity>
+                        </ScrollView>
                     </TouchableOpacity>
-                </View>
+                </KeyboardAvoidingView>
             </View>
         </Modal>
     );
@@ -237,6 +251,12 @@ const styles = StyleSheet.create({
     overlay: {
         flex: 1,
         backgroundColor: "#00000088",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    modalWrapper: {
+        flex: 1,
+        width: "100%",
         justifyContent: "center",
         alignItems: "center",
     },
@@ -259,10 +279,10 @@ const styles = StyleSheet.create({
         zIndex: 10,
     },
     title: {
-        fontSize: 20,
-        fontWeight: "bold",
+        fontSize: 16,
         textAlign: "center",
-        marginBottom: 15,
+        marginBottom: 16,
+        fontWeight: "bold",
         color: "#000",
     },
     inputWrapper: {

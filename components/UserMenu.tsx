@@ -30,11 +30,12 @@ export default function UserMenu() {
         } else {
             slideAnim.setValue(-150);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [visible]);
 
     return (
         <>
-            <TouchableOpacity onPress={() => setVisible(true)}>
+            <TouchableOpacity style={{ height: "100%", alignItems: "center", justifyContent: "center" }} onPress={() => setVisible(true)}>
                 <Image
                     source={require("@/assets/images/avatar.png")}
                     style={{ width: 40, height: 40, marginRight: 25 }}

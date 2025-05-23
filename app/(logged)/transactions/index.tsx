@@ -62,6 +62,7 @@ export default function Transactions() {
             setTransactions([]);
             fetchTransactions(true);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [debouncedSearchTerm, selectedTypes, selectedDate, uid]);
 
     useFocusEffect(
@@ -225,7 +226,7 @@ export default function Transactions() {
                         value={selectedDate || new Date()}
                         mode="date"
                         display="default"
-                        onChange={(e, date) => {
+                        onChange={(_, date) => {
                             setShowDatePicker(false);
                             if (date) setSelectedDate(date);
                         }}
