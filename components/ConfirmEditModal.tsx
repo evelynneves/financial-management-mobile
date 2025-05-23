@@ -57,7 +57,7 @@ export default function ConfirmEditModal({
         if (transaction) {
             const [year, month, day] = transaction.date.split("-");
             setDate(new Date(Number(year), Number(month) - 1, Number(day)));
-            setAmount(formatCurrency(parseCurrency(transaction.amount)));
+            setAmount(formatCurrency(transaction.amount));
 
             if (transaction.type === "Resgate") {
                 const data = userData?.investments;
@@ -341,6 +341,7 @@ export default function ConfirmEditModal({
                         value={amount ?? ""}
                         onChangeText={handleAmountChange}
                         keyboardType="numeric"
+                        maxLength={15}
                         style={[
                             styles.input,
                             transaction?.type === "Resgate" &&

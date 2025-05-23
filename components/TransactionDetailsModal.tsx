@@ -36,6 +36,11 @@ export default function TransactionDetailsModal({
     
     if (!transaction) return null;
 
+        function formatDate(dateString: string): string {
+        const [year, month, day] = dateString.split("-");
+        return `${day}/${month}/${year}`;
+    }
+
     return (
         <Modal visible={visible} transparent animationType="fade">
             <View style={styles.overlay}>
@@ -78,7 +83,7 @@ export default function TransactionDetailsModal({
                         <TextInput
                             style={styles.input}
                             editable={false}
-                            value={new Date(transaction.date).toLocaleDateString("pt-BR")}
+                            value={formatDate(transaction.date)}
                         />
                     </View>
 

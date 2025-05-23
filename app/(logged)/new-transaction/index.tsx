@@ -393,6 +393,7 @@ const NewTransaction = () => {
                     onChangeText={handleAmountChange}
                     keyboardType="numeric"
                     placeholder="R$ 0,00"
+                    maxLength={15}
                     style={[
                         styles.input,
                         transactionType === "resgate" &&

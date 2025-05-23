@@ -127,6 +127,7 @@ export default function SignupModal({ visible, onClose, onSuccess }: Props) {
                                 onChangeText={setName}
                                 onFocus={() => setFocusedInput("nome")}
                                 onBlur={() => setFocusedInput(null)}
+                                maxLength={50}
                             />
 
                             <TextInput
