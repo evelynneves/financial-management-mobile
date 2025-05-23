@@ -1,3 +1,13 @@
+/******************************************************************************
+*                                                                             *
+* Creation Date : 16/04/2025                                                  *
+*                                                                             *
+* Property : (c) This program, code or item is the Intellectual Property of   *
+* Evelyn Neves Barreto. Any use or copy of this code is prohibited without    *
+* the express written authorization of Evelyn. All rights reserved.           *
+*                                                                             *
+*******************************************************************************/
+
 import React, { useEffect, useState } from "react";
 import {
     Modal,
@@ -40,6 +50,7 @@ export default function ConfirmEditModal({
     const [amount, setAmount] = useState("");
     const [availableAmount, setAvailableAmount] = useState(0);
     const [showDatePicker, setShowDatePicker] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
         if (transaction) {
@@ -54,19 +65,32 @@ export default function ConfirmEditModal({
 
                 switch (transaction.investmentType) {
                     case "Fundos de investimento":
-                        available = parseCurrency(data?.variableIncome.investmentFunds) + current;
+                        available =
+                            parseCurrency(
+                                data?.variableIncome.investmentFunds
+                            ) + current;
                         break;
                     case "Tesouro Direto":
-                        available = parseCurrency(data?.fixedIncome.governmentBonds) + current;
+                        available =
+                            parseCurrency(data?.fixedIncome.governmentBonds) +
+                            current;
                         break;
                     case "Previdência Privada Fixa":
-                        available = parseCurrency(data?.fixedIncome.privatePensionFixed) + current;
+                        available =
+                            parseCurrency(
+                                data?.fixedIncome.privatePensionFixed
+                            ) + current;
                         break;
                     case "Previdência Privada Variável":
-                        available = parseCurrency(data?.variableIncome.privatePensionVariable) + current;
+                        available =
+                            parseCurrency(
+                                data?.variableIncome.privatePensionVariable
+                            ) + current;
                         break;
                     case "Bolsa de Valores":
-                        available = parseCurrency(data?.variableIncome.stockMarket) + current;
+                        available =
+                            parseCurrency(data?.variableIncome.stockMarket) +
+                            current;
                         break;
                 }
                 setAvailableAmount(available);
@@ -91,23 +115,28 @@ export default function ConfirmEditModal({
     const parseCurrency = (value: string | number | undefined): number => {
         if (!value) return 0;
         return (
-            parseFloat(value.toString().replace(/[R$\s\.]/g, "").replace(",", ".")) || 0
+            parseFloat(
+                value
+                    .toString()
+                    .replace(/[R$\s\.]/g, "")
+                    .replace(",", ".")
+            ) || 0
         );
     };
 
     const formatCurrency = (value: number, isNegative?: boolean): string => {
         const prefix = isNegative ? "- R$" : "R$";
-        return `${prefix} ${value.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
+        return `${prefix} ${value.toLocaleString("pt-BR", {
+            minimumFractionDigits: 2,
+        })}`;
     };
 
     const isValid = (): boolean => {
         const numericAmount = parseCurrency(amount);
-        const maxAvailable = transaction?.type === "Resgate" ? availableAmount : Infinity;
+        const maxAvailable =
+            transaction?.type === "Resgate" ? availableAmount : Infinity;
 
-        return (
-            numericAmount > 0 &&
-            numericAmount <= maxAvailable
-        );
+        return numericAmount > 0 && numericAmount <= maxAvailable;
     };
 
     const getEmptyInvestments = () => ({
@@ -130,12 +159,16 @@ export default function ConfirmEditModal({
         fixedIncome: {
             total: parseCurrency(data.fixedIncome.total),
             governmentBonds: parseCurrency(data.fixedIncome.governmentBonds),
-            privatePensionFixed: parseCurrency(data.fixedIncome.privatePensionFixed),
+            privatePensionFixed: parseCurrency(
+                data.fixedIncome.privatePensionFixed
+            ),
         },
         variableIncome: {
             total: parseCurrency(data.variableIncome.total),
             investmentFunds: parseCurrency(data.variableIncome.investmentFunds),
-            privatePensionVariable: parseCurrency(data.variableIncome.privatePensionVariable),
+            privatePensionVariable: parseCurrency(
+                data.variableIncome.privatePensionVariable
+            ),
             stockMarket: parseCurrency(data.variableIncome.stockMarket),
         },
     });
@@ -145,12 +178,18 @@ export default function ConfirmEditModal({
         fixedIncome: {
             total: formatCurrency(data.fixedIncome.total),
             governmentBonds: formatCurrency(data.fixedIncome.governmentBonds),
-            privatePensionFixed: formatCurrency(data.fixedIncome.privatePensionFixed),
+            privatePensionFixed: formatCurrency(
+                data.fixedIncome.privatePensionFixed
+            ),
         },
         variableIncome: {
             total: formatCurrency(data.variableIncome.total),
-            investmentFunds: formatCurrency(data.variableIncome.investmentFunds),
-            privatePensionVariable: formatCurrency(data.variableIncome.privatePensionVariable),
+            investmentFunds: formatCurrency(
+                data.variableIncome.investmentFunds
+            ),
+            privatePensionVariable: formatCurrency(
+                data.variableIncome.privatePensionVariable
+            ),
             stockMarket: formatCurrency(data.variableIncome.stockMarket),
         },
     });
@@ -159,10 +198,18 @@ export default function ConfirmEditModal({
         if (!transaction) return;
 
         try {
+            setIsSaving(true);
+
             const uid = auth.currentUser?.uid;
             if (!uid || !transaction?.id) return;
 
-            const transactionRef = doc(db, "users", uid, "transactions", transaction.id);
+            const transactionRef = doc(
+                db,
+                "users",
+                uid,
+                "transactions",
+                transaction.id
+            );
             const newAmount = parseCurrency(amount);
             const originalAmount = parseCurrency(transaction.amount.toString());
             const diff = newAmount - originalAmount;
@@ -172,10 +219,19 @@ export default function ConfirmEditModal({
                 date: date.toISOString().split("T")[0],
             });
 
-            if (transaction.type === "Investimento" || transaction.type === "Resgate") {
+            if (
+                transaction.type === "Investimento" ||
+                transaction.type === "Resgate"
+            ) {
                 const delta = transaction.type === "Resgate" ? -diff : diff;
 
-                const investmentsRef = doc(db, "users", uid, "investments", "summary");
+                const investmentsRef = doc(
+                    db,
+                    "users",
+                    uid,
+                    "investments",
+                    "summary"
+                );
                 const snapshot = await getDoc(investmentsRef);
                 const data = snapshot.exists()
                     ? parseInvestmentData(snapshot.data())
@@ -217,11 +273,17 @@ export default function ConfirmEditModal({
             onFinish();
         } catch (error) {
             console.error("Erro ao salvar edição da transação:", error);
+        } finally {
+            setIsSaving(false);
         }
     };
 
     return (
-        <Modal visible={visible && transaction !== null} transparent animationType="fade">
+        <Modal
+            visible={visible && transaction !== null}
+            transparent
+            animationType="fade"
+        >
             <View style={styles.overlay}>
                 <View style={styles.modalContainer}>
                     <Text style={styles.title}>Editar Transação</Text>
@@ -230,16 +292,25 @@ export default function ConfirmEditModal({
                     <TextInput
                         value={transaction?.type ?? ""}
                         editable={false}
-                        style={[styles.input, { backgroundColor: "#eee", color: "#888" }]}
+                        style={[
+                            styles.input,
+                            { backgroundColor: "#eee", color: "#888" },
+                        ]}
                     />
 
-                    {(transaction?.type === "Investimento" || transaction?.type === "Resgate") && (
+                    {(transaction?.type === "Investimento" ||
+                        transaction?.type === "Resgate") && (
                         <>
-                            <Text style={styles.label}>Tipo de Investimento</Text>
+                            <Text style={styles.label}>
+                                Tipo de Investimento
+                            </Text>
                             <TextInput
                                 value={transaction?.investmentType ?? ""}
                                 editable={false}
-                                style={[styles.input, { backgroundColor: "#eee", color: "#888" }]}
+                                style={[
+                                    styles.input,
+                                    { backgroundColor: "#eee", color: "#888" },
+                                ]}
                             />
                         </>
                     )}
@@ -282,11 +353,13 @@ export default function ConfirmEditModal({
                         <>
                             {parseCurrency(amount) > availableAmount ? (
                                 <Text style={styles.errorText}>
-                                    O valor não pode ser maior que o disponível para resgate
+                                    O valor não pode ser maior que o disponível
+                                    para resgate
                                 </Text>
                             ) : (
                                 <Text style={styles.availableText}>
-                                    Valor disponível para resgate: {formatCurrency(availableAmount)}
+                                    Valor disponível para resgate:{" "}
+                                    {formatCurrency(availableAmount)}
                                 </Text>
                             )}
                         </>
@@ -294,17 +367,28 @@ export default function ConfirmEditModal({
 
                     <View style={styles.buttonContainer}>
                         <TouchableOpacity
-                            style={[styles.button, styles.cancel]}
+                            style={[
+                                styles.button,
+                                styles.cancel,
+                                isSaving && { opacity: 0.5 },
+                            ]}
                             onPress={onClose}
+                            disabled={isSaving}
                         >
                             <Text style={styles.buttonText}>Cancelar</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
-                            style={[styles.button, styles.confirm, !isValid() && { opacity: 0.5 }]}
+                            style={[
+                                styles.button,
+                                styles.confirm,
+                                (!isValid() || isSaving) && { opacity: 0.5 },
+                            ]}
                             onPress={handleSave}
-                            disabled={!isValid()}
+                            disabled={!isValid() || isSaving}
                         >
-                            <Text style={styles.buttonText}>Salvar</Text>
+                            <Text style={styles.buttonText}>
+                                {isSaving ? "Salvando..." : "Salvar"}
+                            </Text>
                         </TouchableOpacity>
                     </View>
                 </View>

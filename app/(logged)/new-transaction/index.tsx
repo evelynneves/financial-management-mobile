@@ -1,3 +1,14 @@
+/******************************************************************************
+*                                                                             *
+* Creation Date : 16/04/2025                                                  *
+*                                                                             *
+* Property : (c) This program, code or item is the Intellectual Property of   *
+* Evelyn Neves Barreto. Any use or copy of this code is prohibited without    *
+* the express written authorization of Evelyn. All rights reserved.           *
+*                                                                             *
+*******************************************************************************/
+
+
 import React, { useCallback, useState } from "react";
 import {
     View,
@@ -57,6 +68,7 @@ const NewTransaction = () => {
     const { refreshUserData, userData } = useAuth();
     const db = getFirestore();
     const storage = getStorage();
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleInvestmentTypeChange = (value: string) => {
         setInvestmentType(value);
@@ -126,6 +138,7 @@ const NewTransaction = () => {
     };
 
     const handleSubmit = async () => {
+        setIsSubmitting(true);
         try {
             const uid = auth.currentUser?.uid;
             if (!uid || !amount) return;
@@ -145,18 +158,8 @@ const NewTransaction = () => {
             }
 
             const monthNames = [
-                "Janeiro",
-                "Fevereiro",
-                "Março",
-                "Abril",
-                "Maio",
-                "Junho",
-                "Julho",
-                "Agosto",
-                "Setembro",
-                "Outubro",
-                "Novembro",
-                "Dezembro",
+                "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+                "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
             ];
             const month = monthNames[date.getMonth()];
             const formattedDate = date.toISOString().split("T")[0];
@@ -176,38 +179,22 @@ const NewTransaction = () => {
                         : "Resgate",
                 amount: numericAmount,
                 isNegative,
-                ...((transactionType === "investimento" ||
-                    transactionType === "resgate") && { investmentType }),
+                ...((transactionType === "investimento" || transactionType === "resgate") && { investmentType }),
                 attachmentFileId,
                 attachmentUrl,
                 createdAt: serverTimestamp(),
             };
 
-            await addDoc(
-                collection(db, "users", uid, "transactions"),
-                newTransaction
-            );
+            await addDoc(collection(db, "users", uid, "transactions"), newTransaction);
 
-            if (
-                newTransaction.type === "Investimento" ||
-                newTransaction.type === "Resgate"
-            ) {
-                const investmentsRef = doc(
-                    db,
-                    "users",
-                    uid,
-                    "investments",
-                    "summary"
-                );
+            if (newTransaction.type === "Investimento" || newTransaction.type === "Resgate") {
+                const investmentsRef = doc(db, "users", uid, "investments", "summary");
                 const snapshot = await getDoc(investmentsRef);
                 const data = snapshot.exists()
                     ? parseInvestmentData(snapshot.data())
                     : getEmptyInvestments();
 
-                const delta =
-                    newTransaction.type === "Resgate"
-                        ? -numericAmount
-                        : numericAmount;
+                const delta = newTransaction.type === "Resgate" ? -numericAmount : numericAmount;
                 switch (investmentType) {
                     case "Fundos de investimento":
                         data.variableIncome.investmentFunds += delta;
@@ -227,8 +214,7 @@ const NewTransaction = () => {
                 }
 
                 data.fixedIncome.total =
-                    data.fixedIncome.privatePensionFixed +
-                    data.fixedIncome.governmentBonds;
+                    data.fixedIncome.privatePensionFixed + data.fixedIncome.governmentBonds;
                 data.variableIncome.total =
                     data.variableIncome.investmentFunds +
                     data.variableIncome.privatePensionVariable +
@@ -239,15 +225,14 @@ const NewTransaction = () => {
                 await setDoc(investmentsRef, toCurrencyData(data));
             }
 
-            await updateUserBalance(
-                uid,
-                isNegative ? -numericAmount : numericAmount
-            );
+            await updateUserBalance(uid, isNegative ? -numericAmount : numericAmount);
             await refreshUserData();
             resetForm();
             router.replace("/home");
         } catch (err) {
             console.error("Erro ao salvar transação:", err);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -445,12 +430,14 @@ const NewTransaction = () => {
                 <TouchableOpacity
                     style={[
                         styles.submitButton,
-                        !isFormValid() && { opacity: 0.5 },
+                        (!isFormValid() || isSubmitting) && { opacity: 0.5 },
                     ]}
                     onPress={handleSubmit}
-                    disabled={!isFormValid()}
+                    disabled={!isFormValid() || isSubmitting}
                 >
-                    <Text style={styles.submitText}>Concluir transação</Text>
+                    <Text style={styles.submitText}>
+                        {isSubmitting ? "Salvando..." : "Concluir transação"}
+                    </Text>
                 </TouchableOpacity>
             </View>
         </ScreenWrapper>

@@ -1,11 +1,16 @@
-import React from "react";
-import {
-    Modal,
-    View,
-    Text,
-    StyleSheet,
-    TouchableOpacity,
-} from "react-native";
+/******************************************************************************
+*                                                                             *
+* Creation Date : 16/04/2025                                                  *
+*                                                                             *
+* Property : (c) This program, code or item is the Intellectual Property of   *
+* Evelyn Neves Barreto. Any use or copy of this code is prohibited without    *
+* the express written authorization of Evelyn. All rights reserved.           *
+*                                                                             *
+*******************************************************************************/
+
+
+import React, { useState } from "react";
+import { Modal, View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import {
     doc,
     getDoc,
@@ -37,12 +42,15 @@ export default function ConfirmDeleteModal({
     const { refreshUserData } = useAuth();
     const db = getFirestore();
     const storage = getStorage();
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const handleDelete = async () => {
         const uid = auth.currentUser?.uid;
         if (!uid || !transaction?.id) return;
 
         try {
+            setIsDeleting(true);
+
             const transactionRef = doc(db, "users", uid, "transactions", transaction.id);
             const amount = transaction.amount;
             const type = transaction.type;
@@ -100,6 +108,8 @@ export default function ConfirmDeleteModal({
             onReload();
         } catch (err) {
             console.error("Erro ao deletar transação:", err);
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -114,16 +124,28 @@ export default function ConfirmDeleteModal({
 
                     <View style={styles.buttonContainer}>
                         <TouchableOpacity
-                            style={[styles.button, styles.cancel]}
+                            style={[
+                                styles.button,
+                                styles.cancel,
+                                isDeleting && { opacity: 0.5 },
+                            ]}
                             onPress={onClose}
+                            disabled={isDeleting}
                         >
                             <Text style={styles.buttonText}>Cancelar</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
-                            style={[styles.button, styles.confirm]}
+                            style={[
+                                styles.button,
+                                styles.confirm,
+                                isDeleting && { opacity: 0.5 },
+                            ]}
                             onPress={handleDelete}
+                            disabled={isDeleting}
                         >
-                            <Text style={styles.buttonText}>Confirmar</Text>
+                            <Text style={styles.buttonText}>
+                                {isDeleting ? "Removendo..." : "Confirmar"}
+                            </Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -159,13 +181,13 @@ const parseInvestmentData = (data: any) => ({
     fixedIncome: {
         total: parseFloat(data.fixedIncome.total.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0,
         governmentBonds: parseFloat(data.fixedIncome.governmentBonds.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0,
-        privatePensionFixed: parseFloat(data.fixedIncome.privatePensionFixed.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0,
+        privatePensionFixed: parseFloat( data.fixedIncome.privatePensionFixed .replace(/[R$\.\s]/g, "") .replace(",", ".") ) || 0,
     },
     variableIncome: {
         total: parseFloat(data.variableIncome.total.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0,
         investmentFunds: parseFloat(data.variableIncome.investmentFunds.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0,
         privatePensionVariable: parseFloat(data.variableIncome.privatePensionVariable.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0,
-        stockMarket: parseFloat(data.variableIncome.stockMarket.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0,
+        stockMarket:parseFloat(data.variableIncome.stockMarket.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0,
     },
 });
 
@@ -174,12 +196,16 @@ const toCurrencyData = (data: any) => ({
     fixedIncome: {
         total: formatCurrency(data.fixedIncome.total),
         governmentBonds: formatCurrency(data.fixedIncome.governmentBonds),
-        privatePensionFixed: formatCurrency(data.fixedIncome.privatePensionFixed),
+        privatePensionFixed: formatCurrency(
+            data.fixedIncome.privatePensionFixed
+        ),
     },
     variableIncome: {
         total: formatCurrency(data.variableIncome.total),
         investmentFunds: formatCurrency(data.variableIncome.investmentFunds),
-        privatePensionVariable: formatCurrency(data.variableIncome.privatePensionVariable),
+        privatePensionVariable: formatCurrency(
+            data.variableIncome.privatePensionVariable
+        ),
         stockMarket: formatCurrency(data.variableIncome.stockMarket),
     },
 });
@@ -226,6 +252,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#004D61",
     },
     buttonText: {
+        fontSize: 13,
         color: "#fff",
         fontWeight: "bold",
     },
