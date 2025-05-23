@@ -62,11 +62,12 @@ export default function Transactions() {
             setTransactions([]);
             fetchTransactions(true);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [debouncedSearchTerm, selectedTypes, selectedDate, uid]);
 
     useFocusEffect(
         useCallback(() => {
+            fetchTransactions(true);
+
             return () => {
                 setSelectedTypes([]);
                 setSelectedDate(null);
@@ -159,7 +160,6 @@ export default function Transactions() {
             style={styles.container}
         >
             <View style={styles.cardContainer}>
-                {/* Filtros e busca fora do FlatList */}
                 <View style={styles.headerSection}>
                     <Text style={styles.title}>Lista de Transações</Text>
                     <View style={styles.filters}>
@@ -246,7 +246,9 @@ export default function Transactions() {
                     <FlatList
                         data={transactions}
                         keyExtractor={(item) => item.id!}
-                        renderItem={({ item }) => <StatementCard transactions={[item]} />}
+                        renderItem={({ item }) => (
+                            <StatementCard transactions={[item]} onReload={handleRefresh} />
+                        )}
                         onEndReached={handleLoadMore}
                         onEndReachedThreshold={0.5}
                         refreshing={refreshing}

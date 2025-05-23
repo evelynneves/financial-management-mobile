@@ -23,6 +23,7 @@ import * as DocumentPicker from "expo-document-picker";
 import { auth } from "@/firebase/config";
 import { router, useFocusEffect } from "expo-router";
 import { useAuth } from "@/context/auth-context";
+import { updateUserBalance } from "@/firebase/helpers/balance";
 
 const transactionTypes = [
     { label: "Depósito", value: "deposito" },
@@ -132,6 +133,7 @@ const NewTransaction = () => {
                 attachmentFileId = filePath;
                 attachmentUrl = await getDownloadURL(fileRef);
             }
+
             const monthNames = [
                 "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
                 "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
@@ -139,7 +141,7 @@ const NewTransaction = () => {
             const month = monthNames[date.getMonth()];
             const formattedDate = date.toISOString().split("T")[0];
             const numericAmount = parseCurrency(amount);
-            const isNegative = transactionType !== "deposito" && transactionType !== "resgate";
+            const isNegative = transactionType !== "deposito";
 
             const newTransaction = {
                 month,
@@ -181,6 +183,7 @@ const NewTransaction = () => {
                         data.variableIncome.stockMarket += delta;
                         break;
                 }
+
                 data.fixedIncome.total = data.fixedIncome.privatePensionFixed + data.fixedIncome.governmentBonds;
                 data.variableIncome.total = data.variableIncome.investmentFunds + data.variableIncome.privatePensionVariable + data.variableIncome.stockMarket;
                 data.totalAmount = data.fixedIncome.total + data.variableIncome.total;
@@ -188,6 +191,7 @@ const NewTransaction = () => {
                 await setDoc(investmentsRef, toCurrencyData(data));
             }
 
+            await updateUserBalance(uid, isNegative ? -numericAmount : numericAmount);
             await refreshUserData();
             resetForm();
             router.replace("/home");

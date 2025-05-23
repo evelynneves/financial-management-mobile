@@ -18,6 +18,7 @@ import {
 import { auth } from "@/firebase/config";
 import { Transaction } from "./StatementCard";
 import { useAuth } from "@/context/auth-context";
+import { updateUserBalance } from "@/firebase/helpers/balance";
 
 interface EditModalProps {
     visible: boolean;
@@ -69,7 +70,6 @@ export default function ConfirmEditModal({
                 }
                 setAvailableAmount(available);
             }
-
         }
     }, [transaction]);
 
@@ -210,6 +210,7 @@ export default function ConfirmEditModal({
                 await setDoc(investmentsRef, toCurrencyData(data));
             }
 
+            await updateUserBalance(uid, transaction.isNegative ? -diff : diff);
             await refreshUserData();
             onFinish();
         } catch (error) {

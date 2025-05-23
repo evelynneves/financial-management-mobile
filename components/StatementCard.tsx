@@ -1,9 +1,15 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Linking} from "react-native";
+import {
+    View,
+    Text,
+    StyleSheet,
+    TouchableOpacity,
+    Linking,
+} from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import ConfirmDeleteModal from "./ConfirmDeleteModal";
-import ConfirmEditModal from "./ConfirmEditModal";
 import TransactionDetailsModal from "./TransactionDetailsModal";
+import ConfirmEditModal from "./ConfirmEditModal";
+import ConfirmDeleteModal from "./ConfirmDeleteModal";
 import { useAuth } from "@/context/auth-context";
 
 export type TransactionType =
@@ -26,12 +32,10 @@ export interface Transaction {
 
 export default function StatementCard({
     transactions,
-    title,
-    isFiltered = false,
+    onReload,
 }: {
     transactions: Transaction[];
-    title?: string;
-    isFiltered?: boolean,
+    onReload: () => void;
 }) {
     const { refreshUserData } = useAuth();
     const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -56,109 +60,93 @@ export default function StatementCard({
 
     return (
         <View style={styles.card}>
-            {title && (
-                <View style={styles.header}>
-                    <Text style={styles.title}>{title}</Text>
-                </View>
-            )}
-
-            {transactions.length === 0 ? (
-                    <Text style={styles.emptyMessage}>
-                        {isFiltered
-                            ? "😕 Nenhum resultado encontrado com os filtros aplicados."
-                            : "🤖 Nenhuma transação por aqui ainda...\nVamos movimentar sua conta? 💸"}
-                    </Text>
-            ) : (
-                transactions.map((item, index) => (
-                    <View key={index} style={styles.transaction}>
-                        <View style={styles.row}>
-                            <Text style={styles.month}>{item.month}</Text>
-                            <View style={styles.iconGroup}>
-                                {item.attachmentFileId && (
-                                    <TouchableOpacity
-                                        onPress={() => handleOpenAttachment(item.attachmentUrl!)}
-                                    >
-                                        <MaterialCommunityIcons
-                                            name="paperclip"
-                                            size={20}
-                                            color="#004D61"
-                                        />
-                                    </TouchableOpacity>
-                                )}
+            {transactions.map((item, index) => (
+                <View key={index} style={styles.transaction}>
+                    <View style={styles.row}>
+                        <Text style={styles.month}>{item.month}</Text>
+                        <View style={styles.iconGroup}>
+                            {item.attachmentFileId && (
                                 <TouchableOpacity
-                                    onPress={() => {
-                                        setSelectedTransaction(item);
-                                        setShowDetailsModal(true);
-                                    }}
+                                    onPress={() => handleOpenAttachment(item.attachmentUrl!)}
                                 >
                                     <MaterialCommunityIcons
-                                        name="eye"
+                                        name="paperclip"
                                         size={20}
                                         color="#004D61"
                                     />
                                 </TouchableOpacity>
-                                <TouchableOpacity
-                                    onPress={() => {
-                                        setSelectedTransaction(item);
-                                        setShowEditModal(true);
-                                    }}
-                                >
-                                    <MaterialCommunityIcons
-                                        name="pencil"
-                                        size={20}
-                                        color="#004D61"
-                                    />
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    onPress={() => {
-                                        setSelectedTransaction(item);
-                                        setShowConfirmModal(true);
-                                    }}
-                                >
-                                    <MaterialCommunityIcons
-                                        name="trash-can"
-                                        size={20}
-                                        color="#004D61"
-                                    />
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-
-                        <View style={styles.row}>
-                            <Text
-                                style={[
-                                    styles.type,
-                                    item.isNegative && { color: "red" },
-                                ]}
+                            )}
+                            <TouchableOpacity
+                                onPress={() => {
+                                    setSelectedTransaction(item);
+                                    setShowDetailsModal(true);
+                                }}
                             >
-                                {item.type}
-                            </Text>
-                            <Text style={styles.date}>
-                                {new Date(item.date).toLocaleDateString("pt-BR")}
-                            </Text>
+                                <MaterialCommunityIcons
+                                    name="eye"
+                                    size={20}
+                                    color="#004D61"
+                                />
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    setSelectedTransaction(item);
+                                    setShowEditModal(true);
+                                }}
+                            >
+                                <MaterialCommunityIcons
+                                    name="pencil"
+                                    size={20}
+                                    color="#004D61"
+                                />
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    setSelectedTransaction(item);
+                                    setShowConfirmModal(true);
+                                }}
+                            >
+                                <MaterialCommunityIcons
+                                    name="trash-can"
+                                    size={20}
+                                    color="#004D61"
+                                />
+                            </TouchableOpacity>
                         </View>
+                    </View>
 
-                        {item.investmentType && (
-                            <Text style={styles.investmentType}>
-                                {item.investmentType}
-                            </Text>
-                        )}
-
+                    <View style={styles.row}>
                         <Text
                             style={[
-                                styles.amount,
-                                item.isNegative
-                                    ? { color: "#f44336" }
-                                    : { color: "#000" },
+                                styles.type,
+                                item.isNegative && { color: "red" },
                             ]}
                         >
-                            {formatCurrency(item.amount, item.isNegative)}
+                            {item.type}
                         </Text>
-
-                        <View style={styles.separator} />
+                        <Text style={styles.date}>
+                            {new Date(item.date).toLocaleDateString("pt-BR")}
+                        </Text>
                     </View>
-                ))
-            )}
+
+                    {item.investmentType && (
+                        <Text style={styles.investmentType}>{item.investmentType}</Text>
+                    )}
+
+                    <Text
+                        style={[
+                            styles.amount,
+                            item.isNegative
+                                ? { color: "#f44336" }
+                                : { color: "#000" },
+                        ]}
+                    >
+                        {formatCurrency(item.amount, item.isNegative)}
+                    </Text>
+
+                    <View style={styles.separator} />
+                </View>
+            ))}
 
             <TransactionDetailsModal
                 visible={showDetailsModal}
@@ -180,9 +168,10 @@ export default function StatementCard({
                     setShowEditModal(false);
                     setSelectedTransaction(null);
                     refreshUserData();
+                    onReload();
                 }}
             />
-            
+
             <ConfirmDeleteModal
                 visible={showConfirmModal}
                 transaction={selectedTransaction}
@@ -194,7 +183,9 @@ export default function StatementCard({
                     setShowConfirmModal(false);
                     setSelectedTransaction(null);
                     refreshUserData();
+                    onReload();
                 }}
+                onReload={onReload}
             />
         </View>
     );
@@ -203,25 +194,10 @@ export default function StatementCard({
 const styles = StyleSheet.create({
     card: {
         backgroundColor: "#fff",
-        padding: 25,
+        paddingHorizontal: 25,
+        paddingVertical: 10,
         borderRadius: 8,
         gap: 15,
-    },
-    header: {
-        flexDirection: "row",
-        justifyContent: "center",
-    },
-    title: {
-        fontSize: 25,
-        fontWeight: "bold",
-        color: "#000",
-    },
-    emptyMessage: {
-        textAlign: "center",
-        color: "#555",
-        fontSize: 16,
-        marginTop: 20,
-        lineHeight: 22,
     },
     iconGroup: {
         flexDirection: "row",

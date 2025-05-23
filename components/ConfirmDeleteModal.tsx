@@ -17,12 +17,14 @@ import { auth } from "@/firebase/config";
 import { useAuth } from "@/context/auth-context";
 import { Transaction } from "./StatementCard";
 import { getStorage, ref, deleteObject } from "firebase/storage";
+import { updateUserBalance } from "@/firebase/helpers/balance";
 
 interface ConfirmDeleteModalProps {
     visible: boolean;
     transaction: Transaction | null;
     onClose: () => void;
     onFinish: () => void;
+    onReload: () => void;
 }
 
 export default function ConfirmDeleteModal({
@@ -30,6 +32,7 @@ export default function ConfirmDeleteModal({
     transaction,
     onClose,
     onFinish,
+    onReload,
 }: ConfirmDeleteModalProps) {
     const { refreshUserData } = useAuth();
     const db = getFirestore();
@@ -90,9 +93,11 @@ export default function ConfirmDeleteModal({
                 await setDoc(investmentsRef, toCurrencyData(data));
             }
 
+            await updateUserBalance(uid, transaction.isNegative ? transaction.amount : -transaction.amount);
             await deleteDoc(transactionRef);
             await refreshUserData();
             onFinish();
+            onReload();
         } catch (err) {
             console.error("Erro ao deletar transação:", err);
         }
@@ -150,33 +155,17 @@ const getEmptyInvestments = () => ({
 });
 
 const parseInvestmentData = (data: any) => ({
-    totalAmount: parseFloat(
-        data.totalAmount.replace(/[R$\.\s]/g, "").replace(",", ".")
-    ) || 0,
+    totalAmount: parseFloat(data.totalAmount.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0,
     fixedIncome: {
-        total: parseFloat(
-            data.fixedIncome.total.replace(/[R$\.\s]/g, "").replace(",", ".")
-        ) || 0,
-        governmentBonds: parseFloat(
-            data.fixedIncome.governmentBonds.replace(/[R$\.\s]/g, "").replace(",", ".")
-        ) || 0,
-        privatePensionFixed: parseFloat(
-            data.fixedIncome.privatePensionFixed.replace(/[R$\.\s]/g, "").replace(",", ".")
-        ) || 0,
+        total: parseFloat(data.fixedIncome.total.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0,
+        governmentBonds: parseFloat(data.fixedIncome.governmentBonds.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0,
+        privatePensionFixed: parseFloat(data.fixedIncome.privatePensionFixed.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0,
     },
     variableIncome: {
-        total: parseFloat(
-            data.variableIncome.total.replace(/[R$\.\s]/g, "").replace(",", ".")
-        ) || 0,
-        investmentFunds: parseFloat(
-            data.variableIncome.investmentFunds.replace(/[R$\.\s]/g, "").replace(",", ".")
-        ) || 0,
-        privatePensionVariable: parseFloat(
-            data.variableIncome.privatePensionVariable.replace(/[R$\.\s]/g, "").replace(",", ".")
-        ) || 0,
-        stockMarket: parseFloat(
-            data.variableIncome.stockMarket.replace(/[R$\.\s]/g, "").replace(",", ".")
-        ) || 0,
+        total: parseFloat(data.variableIncome.total.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0,
+        investmentFunds: parseFloat(data.variableIncome.investmentFunds.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0,
+        privatePensionVariable: parseFloat(data.variableIncome.privatePensionVariable.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0,
+        stockMarket: parseFloat(data.variableIncome.stockMarket.replace(/[R$\.\s]/g, "").replace(",", ".")) || 0,
     },
 });
 
