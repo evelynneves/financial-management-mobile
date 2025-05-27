@@ -15,9 +15,25 @@ npm install
 ```bash
 npm start
 ```
+
 Ou use os atalhos:
 - `npm run android`: abre no Android Studio ou dispositivo Android conectado
 - `npm run ios`: abre no simulador iOS (macOS)
+
+## 🔐 Configuração do Firebase
+Para rodar o projeto, você precisa criar um arquivo `.env` na raiz do projeto com as credenciais do Firebase. O conteúdo do arquivo deve seguir o seguinte formato:
+
+```env
+EXPO_PUBLIC_FIREBASE_API_KEY=...
+EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=...
+EXPO_PUBLIC_FIREBASE_PROJECT_ID=...
+EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=...
+EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=...
+EXPO_PUBLIC_FIREBASE_APP_ID=...
+```
+
+> ℹ️ **Nota:** o arquivo `.env` com os dados de configuração foi enviado juntamente com os links úteis do projeto. Caso não tenha recebido, entre em contato com a autora.
+
 
 ## 📱 Testar no celular
 
