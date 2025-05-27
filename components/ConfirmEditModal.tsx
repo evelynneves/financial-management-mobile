@@ -115,19 +115,24 @@ export default function ConfirmEditModal({
 
     const parseCurrency = (value: string | number | undefined): number => {
         if (!value) return 0;
-        return (
-            parseFloat(
-                value
-                    .toString()
-                    .replace(/[R$\s\.]/g, "")
-                    .replace(",", ".")
-            ) || 0
-        );
+
+        if (typeof value === "number") return value;
+
+        const hasComma = value.includes(",");
+        const cleaned = value
+            .replace(/[^\d,\.]/g, "")
+
+        if (hasComma) {
+            return parseFloat(cleaned.replace(/\./g, "").replace(",", "."));
+        } else {
+            return parseFloat(cleaned);
+        }
     };
+
 
     const formatCurrency = (value: number, isNegative?: boolean): string => {
         const prefix = isNegative ? "- R$" : "R$";
-        return `${prefix} ${value.toLocaleString("pt-BR", {
+        return `${prefix}${value.toLocaleString("pt-BR", {
             minimumFractionDigits: 2,
         })}`;
     };
