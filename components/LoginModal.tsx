@@ -111,6 +111,7 @@ export default function LoginModal({ visible, onClose, onSuccess }: Props) {
 
                             <TextInput
                                 placeholder="Digite seu email *"
+                                placeholderTextColor="#8B8B8B"
                                 style={[
                                     styles.input,
                                     focusedInput === "email" && styles.inputFocused,
@@ -133,6 +134,7 @@ export default function LoginModal({ visible, onClose, onSuccess }: Props) {
                             <TextInput
                                 placeholder="Digite sua senha *"
                                 secureTextEntry
+                                placeholderTextColor="#8B8B8B"
                                 style={[
                                     styles.input,
                                     focusedInput === "senha" && styles.inputFocused,
@@ -198,6 +200,7 @@ const styles = StyleSheet.create({
     },
     input: {
         borderWidth: 1,
+        color: "#000",
         borderColor: "#DEE9EA",
         borderRadius: 8,
         paddingHorizontal: 12,

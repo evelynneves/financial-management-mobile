@@ -350,19 +350,19 @@ const NewTransaction = () => {
                         </Text>
                         <View style={styles.pickerWrapper}>
                             <RNPickerSelect
-                            placeholder={{
-                                label: "Selecione um tipo",
-                                value: null,
-                            }}
-                            onValueChange={handleInvestmentTypeChange}
-                            value={investmentType}
-                            items={investmentOptions}
-                            style={{
-                                inputIOS: pickerSelectStyles.inputIOS,
-                                inputAndroid: pickerSelectStyles.inputAndroid,
-                                inputWeb: pickerSelectStyles.inputWeb,
-                            }}
-                            useNativeAndroidPickerStyle={false}
+                                placeholder={{
+                                    label: "Selecione um tipo",
+                                    value: null,
+                                }}
+                                onValueChange={handleInvestmentTypeChange}
+                                value={investmentType}
+                                items={investmentOptions}
+                                style={{
+                                    inputIOS: pickerSelectStyles.inputIOS,
+                                    inputAndroid: pickerSelectStyles.inputAndroid,
+                                    inputWeb: pickerSelectStyles.inputWeb,
+                                }}
+                                useNativeAndroidPickerStyle={false}
                             />
                         </View>
                     </>
@@ -536,7 +536,9 @@ const styles = StyleSheet.create({
         backgroundColor: "#fff",
         marginBottom: 20,
         paddingHorizontal: 10,
-        paddingVertical: Platform.OS === "android" ? 4 : 12,
+        paddingVertical: Platform.OS === "android" ? 4 : 0,
+        height: 48,
+        justifyContent: "center", 
     },
 });
 
@@ -544,6 +546,10 @@ const pickerSelectStyles = {
     inputIOS: {
         fontSize: 16,
         color: "#004D61",
+        paddingVertical: 12,
+        paddingHorizontal: 10,
+        borderRadius: 8,
+        backgroundColor: "#fff",
     },
     inputAndroid: {
         fontSize: 16,

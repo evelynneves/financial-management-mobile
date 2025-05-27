@@ -119,6 +119,7 @@ export default function SignupModal({ visible, onClose, onSuccess }: Props) {
 
                             <TextInput
                                 placeholder="Digite seu nome completo *"
+                                placeholderTextColor="#8B8B8B"
                                 style={[
                                     styles.input,
                                     focusedInput === "nome" && styles.inputFocused,
@@ -132,6 +133,7 @@ export default function SignupModal({ visible, onClose, onSuccess }: Props) {
 
                             <TextInput
                                 placeholder="Digite seu email *"
+                                placeholderTextColor="#8B8B8B"
                                 style={[
                                     styles.input,
                                     focusedInput === "email" && styles.inputFocused,
@@ -153,6 +155,7 @@ export default function SignupModal({ visible, onClose, onSuccess }: Props) {
 
                             <TextInput
                                 placeholder="Digite sua senha *"
+                                placeholderTextColor="#8B8B8B"
                                 secureTextEntry
                                 style={[
                                     styles.input,
@@ -229,6 +232,7 @@ const styles = StyleSheet.create({
     },
     input: {
         borderWidth: 1,
+        color: "#000",
         borderColor: "#DEE9EA",
         borderRadius: 8,
         paddingHorizontal: 12,

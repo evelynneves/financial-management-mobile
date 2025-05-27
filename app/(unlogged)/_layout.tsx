@@ -29,7 +29,7 @@ export default function UnloggedLayout() {
                             paddingBottom: Platform.OS === "android" ? 25 : 0,
                         },
                         headerRightContainerStyle: {
-                            alignItems: "center",
+                            justifyContent: "flex-start",
                             height: "100%",
                             paddingBottom: Platform.OS === "android" ? 25 : 0,
                         },
@@ -39,8 +39,7 @@ export default function UnloggedLayout() {
                             <Image
                                 source={require("@/assets/images/logo.png")}
                                 style={{
-                                    width: 145,
-                                    height: 80,
+                                    height: 60,
                                     marginRight: 16,
                                 }}
                                 resizeMode="contain"
