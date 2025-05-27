@@ -518,7 +518,7 @@ const styles = StyleSheet.create({
         color: "#e57471",
         fontSize: 14,
         fontWeight: "bold",
-        marginTop: -5,
+        marginTop: -20,
         marginBottom: 10,
     },
     availableText: {
@@ -528,7 +528,6 @@ const styles = StyleSheet.create({
         marginTop: -20,
         marginBottom: 10,
     },
-
     pickerWrapper: {
         borderWidth: 1,
         borderColor: "#004D61",
