@@ -525,7 +525,7 @@ const styles = StyleSheet.create({
         color: "#47a138",
         fontSize: 14,
         fontWeight: "bold",
-        marginTop: -5,
+        marginTop: -20,
         marginBottom: 10,
     },
 
