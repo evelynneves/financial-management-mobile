@@ -82,7 +82,7 @@ export default function Investments() {
                 </View>
 
                 <View style={styles.incomeCard}>
-                    <Text style={styles.incomeLabel}>Renda variável</Text>
+                    <Text style={styles.incomeLabel}>Renda Variável</Text>
                     <Text style={styles.incomeAmount}>{rendaVariavel}</Text>
                 </View>
 
