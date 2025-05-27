@@ -98,7 +98,7 @@ export default function Transactions() {
 
     const buildQuery = (startDoc?: any) => {
         const baseRef = collection(db, "users", uid!, "transactions");
-        let q: any = query(baseRef, orderBy("date", "desc"), limit(PAGE_SIZE));
+        let q: any = query(baseRef, orderBy("date", "desc"), orderBy("createdAt", "desc"), limit(PAGE_SIZE));
 
         if (selectedTypes.length > 0) {
             q = query(q, where("type", "in", selectedTypes));

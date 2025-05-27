@@ -71,6 +71,7 @@ export default function Home() {
             let baseQuery = query(
                 collection(db, "users", uid, "transactions"),
                 orderBy("date", "desc"),
+                orderBy("createdAt", "desc"),
                 limit(PAGE_SIZE)
             );
 
